@@ -23,6 +23,7 @@ from __future__ import annotations
 import ast
 import json
 import re
+import hashlib
 from pathlib import Path
 
 # Embedding model limit. bge-small-en-v1.5 handles 512 tokens; code runs
@@ -70,7 +71,11 @@ def _tail_lines(text: str, max_chars: int) -> str:
     out, total = [], 0
     for line in reversed(text.splitlines()):
         cost = len(line) + (1 if out else 0)
-        if total + cost > max_chars and out:
+        # No "and out" escape hatch here: a single line longer than the budget
+        # must yield no overlap at all. Returning it anyway (as an earlier
+        # version did) prepends a whole paragraph to the next chunk, pushing it
+        # over the size cap and duplicating text across two chunks.
+        if total + cost > max_chars:
             break
         out.append(line)
         total += cost
@@ -173,18 +178,27 @@ def should_skip(rel_path: Path) -> bool:
 # --------------------------------------------------------------------------
 # code chunking
 # --------------------------------------------------------------------------
+# A signature longer than this is truncated. Functions with many parameters
+# and long default values (straxen's context builders list a dozen filesystem
+# paths inline) would otherwise fill the whole embedding window with defaults
+# and push the docstring out.
+MAX_SIGNATURE_CHARS = 300
+
 
 DEPRECATION_WORDS = ("deprecat", "will be removed", "obsolete",
                      "does not work with", "use ... instead")
 
 
-def _signature(node) -> str:
-    """Render a def line without its body: 'def compute(self, records)'."""
+def _signature(node, max_chars: int = MAX_SIGNATURE_CHARS) -> str:
     prefix = "async def" if isinstance(node, ast.AsyncFunctionDef) else "def"
     try:
         args = ast.unparse(node.args)
     except Exception:
         args = "..."
+    if len(args) > max_chars:
+        # Cut at a parameter boundary so the result still reads as a signature.
+        cut = args.rfind(", ", 0, max_chars)
+        args = (args[:cut] if cut > 0 else args[:max_chars]) + ", ..."
     return f"{prefix} {node.name}({args})"
 
 
@@ -261,12 +275,27 @@ def _continuation_header(node, rel: str, parent: str | None = None) -> str:
     if parent:
         lines.append(f"Class: {parent}")
     lines.append(f"{'Method' if parent else 'Function'}: {node.name}")
-    lines.append(f"\nSignature: {_signature(node)}")
+    # Docstring first: it carries the meaning, and if the embedding cap has to
+    # cut something it should cut the parameter list.
     doc = ast.get_docstring(node)
     if doc:
         first = doc.strip().split("\n\n")[0]
         lines.append(f"\n{first[:400]}")
+    lines.append(f"\nSignature: {_signature(node)}")
     return "\n".join(lines) + "\n\n"
+
+
+def _body_opening(node, seg: str, n_lines: int) -> str:
+    """The first few lines of real code, skipping signature and docstring.
+
+    Taking the first N lines of the source instead would, for a function with
+    a large parameter list, simply repeat the signature.
+    """
+    stmts = _strip_docstring(node.body)
+    if not stmts:
+        return ""
+    offset = max(0, stmts[0].lineno - node.lineno)
+    return "\n".join(seg.splitlines()[offset:offset + n_lines])
 
 
 def _summary_text(node, seg: str, rel: str, parent: str | None = None) -> str:
@@ -276,13 +305,14 @@ def _summary_text(node, seg: str, rel: str, parent: str | None = None) -> str:
     if parent:
         lines.append(f"Class: {parent}")
     lines.append(f"{'Method' if parent else 'Function'}: {node.name}")
-    lines.append(f"\n{_signature(node)}")
-
+    # Docstring before signature, for the same reason as in
+    # _continuation_header: the description must survive truncation.
     doc = ast.get_docstring(node)
     if doc:
         lines.append(f'\n"""{doc.strip()}"""')
-
-    lines.append("\n" + "\n".join(seg.splitlines()[:SUMMARY_BODY_LINES]))
+ 
+    lines.append(f"\n{_signature(node)}")
+    lines.append("\n" + _body_opening(node, seg, SUMMARY_BODY_LINES))
     lines.append(f"\n# ... continues to line {_end_line(node, node.lineno)} ...")
     return "\n".join(lines)
 
@@ -345,7 +375,17 @@ def _emit_callable(node, src, *, repo, rel, commit, chunks, parent=None,
     qual = f"{parent}.{node.name}" if parent else node.name
     status = _classify(node, seg)
 
-    if len(seg) > SUMMARY_THRESHOLD:
+    # A function is summarised either because it is long, or because its
+    # signature is so large that the raw source would embed as a wall of
+    # parameter defaults with the docstring truncated off the end.
+    try:
+        raw_sig_len = len(ast.unparse(node.args))
+    except Exception:
+        raw_sig_len = 0
+
+    wide_and_truncated = (raw_sig_len > MAX_SIGNATURE_CHARS
+                          and len(seg) > EMBED_MAX_CHARS)
+    if len(seg) > SUMMARY_THRESHOLD or wide_and_truncated:
         chunks.append(_mk(
             _summary_text(node, seg, rel, parent),
             context_text=seg,
@@ -371,7 +411,8 @@ def _emit_callable(node, src, *, repo, rel, commit, chunks, parent=None,
             context_text=(first_header + seg) if len(pieces) > 1 else None,
             repo=repo, path=rel, commit=commit,
             start_line=node.lineno, end_line=_end_line(node, node.lineno),
-            kind=kind, name=qual + suffix, public_api=public_api, status=status,
+            kind=kind, name=qual + suffix, public_api=public_api,
+            status=status,
         ))
 
 
@@ -597,6 +638,46 @@ def chunk_notebook(path: Path, repo: str, commit: str, root: Path) -> list[dict]
 # --------------------------------------------------------------------------
 # driver
 # --------------------------------------------------------------------------
+
+def dedupe_chunks(chunks: list[dict]) -> tuple[list[dict], int]:
+    """Drop chunks whose embedded text duplicates one already kept.
+ 
+    Repositories often hold the same file twice -- straxen keeps its tutorial
+    notebooks in both `notebooks/` and `docs/source/`, and Sphinx copies files
+    around at build time. Indexing both means retrieval returns the same
+    passage two or three times and the prompt budget is spent on repeats.
+ 
+    Comparison ignores the file path. Every chunk carries its own path in its
+    header, so two copies of the same file differ by exactly that string and
+    would otherwise hash differently -- the duplication we are trying to catch
+    would slip through. Substituting a placeholder before hashing makes copies
+    compare equal while keeping the path in the stored chunk, where citations
+    need it.
+ 
+    When two chunks tie, the one with the shallower path wins, which tends to
+    pick the original rather than a copy nested under a docs tree. Ties on
+    depth are broken alphabetically so the result is deterministic.
+ 
+    Returns the kept chunks in their original order, plus how many were
+    dropped.
+    """
+    def rank(c: dict) -> tuple[int, str]:
+        return (len(Path(c["path"]).parts), c["path"])
+ 
+    def fingerprint(c: dict) -> str:
+        body = c["text"].replace(c["path"], "<path>")
+        return hashlib.sha1(body.encode("utf-8")).hexdigest()
+ 
+    winner: dict[str, int] = {}
+    for i, c in enumerate(chunks):
+        key = fingerprint(c)
+        best = winner.get(key)
+        if best is None or rank(c) < rank(chunks[best]):
+            winner[key] = i
+ 
+    keep = set(winner.values())
+    return [c for i, c in enumerate(chunks) if i in keep], len(chunks) - len(keep)
+
 
 def documented_modules(root: Path) -> set[str]:
     """Module names appearing in autodoc directives -> treated as public API."""

@@ -120,6 +120,61 @@ STATUS_SRC = textwrap.dedent('''
         return a + b
 ''').strip()
  
+
+# A function whose signature alone would fill the embedding window: many
+# parameters with long path defaults, exactly like straxen's context builders.
+WIDE_SIG_SRC = textwrap.dedent('''
+    def build_context(
+        output_folder="./strax_data",
+        raw_paths=["/dali/lgrandi/xenonnt/raw", "/dali/lgrandi/xenonnt/raw_2"],
+        processed_paths=[
+            "/project/lgrandi/xenonnt/processed_sr2_offline_round_1",
+            "/project/lgrandi/xenonnt/processed_sr2_offline_round_2",
+            "/project/lgrandi/xenonnt/processed_sr2_offline_round_3",
+            "/project2/lgrandi/xenonnt/processed_sr2_offline_round_4",
+        ],
+        include_rucio_remote=False,
+        include_online_monitor=False,
+        minimum_run_number=7157,
+        **kwargs,
+    ):
+        """Build an analysis context with corrections configuration applied.
+ 
+        Use the versioned variants if you need a specific corrections version.
+        """
+        step_0 = configure_storage_frontend(0, output_folder, raw_paths)
+        step_1 = configure_storage_frontend(1, output_folder, raw_paths)
+        step_2 = configure_storage_frontend(2, output_folder, raw_paths)
+        step_3 = configure_storage_frontend(3, output_folder, raw_paths)
+        step_4 = configure_storage_frontend(4, output_folder, raw_paths)
+        step_5 = configure_storage_frontend(5, output_folder, raw_paths)
+        step_6 = configure_storage_frontend(6, output_folder, raw_paths)
+        step_7 = configure_storage_frontend(7, output_folder, raw_paths)
+        step_8 = configure_storage_frontend(8, output_folder, raw_paths)
+        step_9 = configure_storage_frontend(9, output_folder, raw_paths)
+        step_10 = configure_storage_frontend(10, output_folder, raw_paths)
+        step_11 = configure_storage_frontend(11, output_folder, raw_paths)
+        step_12 = configure_storage_frontend(12, output_folder, raw_paths)
+        step_13 = configure_storage_frontend(13, output_folder, raw_paths)
+        step_14 = configure_storage_frontend(14, output_folder, raw_paths)
+        step_15 = configure_storage_frontend(15, output_folder, raw_paths)
+        step_16 = configure_storage_frontend(16, output_folder, raw_paths)
+        step_17 = configure_storage_frontend(17, output_folder, raw_paths)
+        step_18 = configure_storage_frontend(18, output_folder, raw_paths)
+        step_19 = configure_storage_frontend(19, output_folder, raw_paths)
+        step_20 = configure_storage_frontend(20, output_folder, raw_paths)
+        step_21 = configure_storage_frontend(21, output_folder, raw_paths)
+        step_22 = configure_storage_frontend(22, output_folder, raw_paths)
+        step_23 = configure_storage_frontend(23, output_folder, raw_paths)
+        step_24 = configure_storage_frontend(24, output_folder, raw_paths)
+        step_25 = configure_storage_frontend(25, output_folder, raw_paths)
+        step_26 = configure_storage_frontend(26, output_folder, raw_paths)
+        step_27 = configure_storage_frontend(27, output_folder, raw_paths)
+        step_28 = configure_storage_frontend(28, output_folder, raw_paths)
+        step_29 = configure_storage_frontend(29, output_folder, raw_paths)
+        return Context(**kwargs)
+''').strip()
+
  
 LONG_FUNC_SRC = textwrap.dedent('''
     def enormous(a, b, c=1):
@@ -147,6 +202,7 @@ def repo(tmp_path: Path) -> Path:
     (root / "pkg" / "long.py").write_text(LONG_FUNC_SRC)
     (root / "pkg" / "dense.py").write_text(NO_BLANK_LINES_SRC)
     (root / "pkg" / "status.py").write_text(STATUS_SRC)
+    (root / "pkg" / "wide.py").write_text(WIDE_SIG_SRC)
     (root / "tests" / "test_thing.py").write_text("def test_x():\n    assert 1\n")
  
     (root / "HISTORY.md").write_text(
@@ -235,7 +291,28 @@ def test_overlap_starts_at_a_line_boundary():
         first = piece.splitlines()[0]
         assert first in original_lines, f"mid-token start: {first[:60]!r}"
  
+
+def test_tail_lines_never_exceeds_its_budget():
+    """Regression: a single line longer than the overlap budget used to be
+    returned whole, prepending a full paragraph to the next chunk and
+    duplicating it across two chunks."""
+    one_long_line = "x" * 900
+    assert ch._tail_lines(one_long_line, 150) == ""
  
+    text = "short\n" + "y" * 900
+    assert len(ch._tail_lines(text, 150)) <= 150
+ 
+ 
+def test_split_long_does_not_duplicate_a_long_paragraph():
+    """Two pieces must never begin with the same text."""
+    p1 = "A " * 450          # one 900-char line, no internal breaks
+    p2 = "\n".join(f"* bullet {i} " + "b" * 150 for i in range(4))
+    p3 = "C " * 230
+    pieces = ch._split_long(f"{p1}\n\n{p2}\n\n{p3}", 1200, 150)
+    heads = [p.strip()[:120] for p in pieces]
+    assert len(heads) == len(set(heads)), "a piece was duplicated"
+
+
 def test_tail_lines_returns_whole_lines():
     text = "alpha\nbeta\ngamma\ndelta"
     tail = ch._tail_lines(text, 12)
@@ -343,14 +420,42 @@ def test_top_level_function_is_chunked(repo):
  
 def test_very_long_function_becomes_a_summary(repo):
     summaries = by_kind(chunks_of(repo), "function_summary")
-    assert len(summaries) == 1
-    s = summaries[0]
-    assert s["name"] == "enormous"
+    names = [c["name"] for c in summaries]
+    assert "enormous" in names, f"long function not summarised; got {names}"
+    s = next(c for c in summaries if c["name"] == "enormous")
     assert "Do a great many things" in s["text"]
     assert "def enormous(a, b, c=1)" in s["text"]
     # small-to-big: embedded form is short, prompt context is the whole thing
     assert len(s["text"]) < len(s["context_text"])
     assert "value_199" in s["context_text"]
+ 
+ 
+def test_huge_signature_is_capped(repo):
+    """Regression: a 1200-char signature consumed 83% of the embedding budget
+    and pushed the docstring out entirely."""
+    c = named(chunks_of(repo), "build_context")
+    assert "..." in c["text"], "signature was not truncated"
+    assert "round_4" not in c["text"], "long defaults still in the embedded text"
+ 
+ 
+def test_docstring_survives_a_huge_signature(repo):
+    """The description is what makes a chunk findable; it must not be the
+    thing that gets truncated."""
+    c = named(chunks_of(repo), "build_context")
+    assert "corrections configuration" in c["text"]
+    assert c["text"].index("corrections configuration") < c["text"].index("def build_context(")
+ 
+ 
+def test_wide_signature_routes_to_summary(repo):
+    """Summarised for signature width, not only for length."""
+    c = named(chunks_of(repo), "build_context")
+    assert c["kind"] == "function_summary"
+ 
+ 
+def test_full_source_is_still_available_to_the_llm(repo):
+    c = named(chunks_of(repo), "build_context")
+    assert "round_4" in c["context_text"]
+    assert len(c["context_text"]) > len(c["text"])
  
  
 def test_module_docstring_chunk(repo):
@@ -469,6 +574,73 @@ def test_raises_not_implemented_is_structural():
     node = ast.parse(src).body[0]
     assert ch._raises_not_implemented(node) is True
  
+
+ # --------------------------------------------------------------------------
+# deduplication
+# --------------------------------------------------------------------------
+
+def _c(path, body="same body text here for the chunk"):
+    """Build a chunk the way the real chunkers do: path in the header."""
+    text = f"File: {path}\n\n{body}"
+    return {"text": text, "context_text": text, "repo": "r", "path": path,
+            "commit": "c", "start_line": 1, "end_line": 2, "kind": "prose",
+            "name": "n", "public_api": False, "status": None}
+
+
+def test_dedupe_removes_identical_text():
+    kept, dropped = ch.dedupe_chunks([_c("a/x.md"), _c("b/y.md")])
+    assert dropped == 1
+    assert len(kept) == 1
+
+
+def test_dedupe_keeps_the_shallower_path():
+    """straxen keeps notebooks in both notebooks/ and docs/source/;
+    the shallower path is the original."""
+    kept, _ = ch.dedupe_chunks([
+        _c("docs/source/tutorials/demo.ipynb"),
+        _c("notebooks/tutorials/demo.ipynb"),
+    ])
+    assert kept[0]["path"] == "notebooks/tutorials/demo.ipynb"
+
+
+def test_dedupe_ignores_the_path_when_comparing():
+    """Regression: the path lives inside the chunk text, so two copies of the
+    same file hash differently unless it is normalised out first."""
+    a = _c("notebooks/tutorials/demo.ipynb")
+    b = _c("docs/source/tutorials/demo.ipynb")
+    assert a["text"] != b["text"]          # genuinely different strings
+    kept, dropped = ch.dedupe_chunks([a, b])
+    assert dropped == 1, "path difference defeated the duplicate check"
+    assert kept[0]["path"] == "notebooks/tutorials/demo.ipynb"
+
+
+def test_dedupe_keeps_the_path_in_the_surviving_chunk():
+    """Normalisation is only for comparison; citations still need the path."""
+    kept, _ = ch.dedupe_chunks([_c("a/x.md"), _c("b/x.md")])
+    assert "<path>" not in kept[0]["text"]
+    assert kept[0]["path"] in kept[0]["text"]
+
+
+def test_dedupe_leaves_distinct_chunks_alone():
+    kept, dropped = ch.dedupe_chunks([_c("a.md", "first body"),
+                                      _c("b.md", "second body")])
+    assert dropped == 0
+    assert len(kept) == 2
+
+
+def test_dedupe_preserves_order():
+    chunks = [_c("a.md", "one"), _c("b.md", "two"), _c("c.md", "three")]
+    kept, _ = ch.dedupe_chunks(chunks)
+    assert [c["path"] for c in kept] == ["a.md", "b.md", "c.md"]
+
+
+def test_dedupe_is_deterministic():
+    chunks = [_c("x/a.md"), _c("y/a.md"), _c("z/a.md")]
+    assert ch.dedupe_chunks(chunks)[0] == ch.dedupe_chunks(chunks)[0]
+
+
+def test_dedupe_handles_empty_input():
+    assert ch.dedupe_chunks([]) == ([], 0)
  
 # --------------------------------------------------------------------------
 # invariants -- these are the regression guards
