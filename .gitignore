@@ -40,3 +40,6 @@ models/
 .idea/
 *.swp
 .DS_Store
+
+# Files that should not be uploaded to a public repo
+extra_docs/

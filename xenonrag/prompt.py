@@ -27,7 +27,12 @@ CONTEXT_BUDGET_CHARS = 24_000
 # 13k characters on their own.
 MAX_CHUNK_CHARS = 6_000
 
-ORG = {"strax": "AxFoundation", "straxen": "XENONnT", "xedocs": "XENONnT"}
+ORG = {
+    "strax": "AxFoundation", 
+    "straxen": "XENONnT", 
+    "xedocs": "XENONnT",
+    "rframe": "XENONnT",
+    }
 
 
 SYSTEM = """You answer questions about the XENON analysis software stack
@@ -52,11 +57,20 @@ Rules:
      - deprecated  warn that it is deprecated before describing it.
      - unsupported it deliberately refuses to work in that class. Say so.
 
-5. Prefer showing a short code example when the excerpts contain one. Quote it
-   rather than inventing your own.
+5. Show a code example ONLY by quoting one that appears in the excerpts. Never
+   construct your own usage example. Plugins in this framework are not called
+   directly, so an invented snippet will look plausible and not work. If no
+   excerpt shows usage, say that the excerpts do not include an example.
 
-6. Be concise. The reader is a working scientist who wants the answer, not an
-   essay."""
+6. If the excerpts show several implementations of the same thing -- a base
+   class and its subclasses, or "vanilla" and specialised variants -- name all
+   of them and explain how they relate, rather than describing only the
+   highest-ranked one. Say which is the default where the excerpts make that
+   clear.
+   
+7. Be concise. The reader is a working scientist who wants the answer, not an
+   essay. Do not quote long stretches of code; quote the few lines that matter
+   and describe the rest."""
 
 
 def permalink(chunk: dict) -> str:
@@ -66,6 +80,8 @@ def permalink(chunk: dict) -> str:
     code that was actually indexed even after the branch moves on.
     """
     org = ORG.get(chunk["repo"], "XENONnT")
+    if org is None:
+        return None
     return (f"https://github.com/{org}/{chunk['repo']}/blob/{chunk['commit']}/"
             f"{chunk['path']}#L{chunk['start_line']}-L{chunk['end_line']}")
 
