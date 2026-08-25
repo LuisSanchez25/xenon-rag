@@ -1,5 +1,0 @@
-- id: q0XX
-  question: "How does the get_corrections function work?"
-  gold_files: []
-  category: refusal
-  note: "Removed from straxen; survives only as a stale autodoc reference."

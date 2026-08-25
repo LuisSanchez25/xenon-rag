@@ -1,0 +1,401 @@
+- id: q001
+  question: "How does the get_corrections function work?"
+  gold_files: ["straxen/docs/source/reference/straxen.rst"]
+  category: deprecation
+  note: "Removed from straxen; survives only as a stale autodoc reference."
+  expect: "Should produce a deprecation error/warning. This function is no longer
+           implemented in straxen."
+
+- id: q002
+  question: "How do I add a new correction value to be used for processing?"
+  gold_files: 
+    - "xedocs/xedocs/schemas/corrections/base_corrections.py"
+    - "corrections/README.md"
+  category: usage
+  require_all: false
+  note: "Adding a VALUE to an existing correction. Distinct from creating a new
+         correction (see q0XY). The corpus has separate procedures for each."
+  expect: "Load the schema using xedocs, fill in the required index fields,
+           convert the data into a json and save the file in the corrections repo
+           under [schema_name]/data/[version...].json"
+
+- id: q003
+  question: "How do I add a new correction for processing?"
+  gold_files: ["corrections/README.md"]
+  category: process
+  expect: "Finilize code used to generate the correction, present the results
+           in team BC meeting, upload data files (if any), create a new
+           xedocs schema, define time depedance, make a new branch and 
+           insert the corrections as a json file, finally document the necessary
+           information."
+
+- id: q004
+  question: "What does to_pe mean?"
+  gold_files: ["straxen/straxen/plugins/records/records.py"]
+  category: identifier
+  distinguishing_term: "to_pe"
+  note: "Opaque abbreviation; predicted BM25 win."
+  expect: "This is a conversion from PMT voltage change to number of photo-electrons"
+
+- id: q005
+  question: "How do I load data from SR3 using global v18 corrections?"
+  gold_files: []
+  category: refusal
+  expect: "The corpus has no information on this. The question is specific to a
+         particular experiment and data release, and is a potentially
+         common question"
+
+- id: q006
+  question: "How does the peaklet classification work?"
+  gold_files: 
+    - "straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py"
+    - "straxen/straxen/plugins/peaklets/peaklet_classification_som.py"
+  category: process
+  require_all: true
+  expect: "The SOM classification is the default and uses the output of
+           the vanilla classification to remove some signals."
+
+- id: q007
+  question: "How does the event building work?"
+  gold_files: ["straxen/straxen/plugins/events/events.py"]
+  category: process
+  note: "This is a complex question that has a LOT of moving parts.
+         It is likely this points to a test suit instead spesifically
+         called event builing."
+  expect: "Finds peaks the clear and area and proximity requirments. 
+           Matches the largest s1 with the largest s2 together to form
+           an event" 
+
+- id: q008
+  question: "How does admix work, what can I do with it?"
+  gold_files: []
+  category: refusal
+  expect: "This corpus has no information on this and should
+           refuse to answer."
+         
+- id: q009
+  question: "How do I change the default configuration for a plugin?"
+  gold_files: ["strax/docs/source/advanced/config.rst"]
+  category: usage
+  note: "This could point to how to make a new plugin and change the 
+         defualt there."
+  expect: "You need to change the value in the context. After establishing
+           st = straxen.xenonnt...(), we can do st.set_config() with the 
+           config name along with the URLConfig to the desired value,
+           or just inserting a number"
+
+- id: q010
+  question: "How do I load data from a run?"
+  gold_files: ["straxen/notebooks/tutorials/Open_data.ipynb"]
+  category: usage
+  note: "This is a common question that is well covered in the corpus. The answer
+         should be able to be extracted from the corpus."
+  expect: "You first need to establish a context. Then use a function like
+           'get_array', spesifying the data kind, run_id, ect..."
+
+- id: q011
+  question: "How do I load data from a krypton calibration run?"
+  gold_files: []
+  category: refusal
+  note: "There is nothing in the files that can answer this question."
+  expect: "Refusal, the text does not have the information necessary to answer
+           this."
+
+- id: q012
+  question: "Is midway2/3 down?"
+  gold_files: []
+  category: refusal
+  note: "This system has no way of knowing what is happening on the servers
+         and should refuse to answer this question."
+  expect: "Refusal, the text does not have the information necessary to answer
+           this."
+
+- id: q013
+  question: "Is there a way to analyze the data interactively?"
+  gold_files: ["straxen/notebooks/tutorials/EventDisplayInteractive.ipynb"]
+  category: usage
+  expect: "Answer should contain st.event_display_interactive indicating
+           the desired configuration, importing bklt and using bklt.show"
+
+- id: q014
+  question: "How do I check the detector conditions during a given time?"
+  gold_files: ["straxen/notebooks/tutorials/ScadaInterfaceExample.ipynb"]
+  category: usage
+  expect: "You need to establish a scada context like straxen.SCADAInterface()
+           and use functions like get_scada_values, spesifying the parameter
+           of interest as well as a time range."
+
+- id: q015
+  question: "How does the single electron gain correction affect the data analysis?"
+  gold_files: ["straxen/straxen/plugins/events/corrected_areas.py"]
+  category: process
+  note: "It mainly affects the corrected area, however this could be a bit
+        tricky since single electrons are abreviated as se or seg."
+  expect: "Affects the corrected_areas calculation."
+
+- id: q016
+  question: "How do URLConfigs work?"
+  gold_files: 
+    - "straxen/straxen/config/url_config.py"
+    - "straxen/docs/source/url_configs.rst"
+  category: process
+  require_all: false
+  expect: "This mainly consists of 3 main parts separated by '://' which include
+          the protocol for processing the data, the database location,
+          and details like the correction name, the version, ect... amongst
+          other details needed for the individual correction."
+
+- id: q017
+  question: "What is the procedure for adding new functionality to strax?"
+  gold_files: ["strax/docs/pull_request_template.md"]
+  category: process
+  expect: "In the PR write what the code does, explain how it works,
+           give a minimal example. If applicable, update docstrings and 
+           documentation, test the code works and say if it solves an 
+           open issue, make sure all automatic tests pass."
+
+- id: q018
+  question: "What are the different kinds of plugins available in strax?"
+  gold_files: ["strax/docs/source/advanced/plugin_dev.rst"]
+  category: identifier
+  note: "This question will require collecting information from multiple 
+         sources in the corpus. The main trouble here is that there are 8
+         files with plugin information and the code sources from 8 total
+         sources to generate an answer. I wonder if there is a way of
+         dealing with this? Or could also just use the documentation" 
+  expect: "Should mention plugin bases such as cut_plugin, loop_plugins,
+           merge_only_plugins, overlap_window_plugin, parallel_source_plugind
+           and the main plugin.py amost others."
+
+- id: q019
+  question: "How do I use the overlap_indices function?"
+  gold_files: ["strax/strax/processing/general.py"]
+  category: usage
+  note: "This is about finding and describing a spesific function"
+  expect: "Given two intervals, returns the time where they overlap."
+
+- id: q020
+  question: "How does the peak splitting work?"
+  gold_files: ["strax/strax/processing/peak_splitting.py"]
+  category: process
+  note: "This reqiuers looking at the whole file and sumarizing the key ideas.
+         A summary of this idea can be found in 
+         https://github.com/AxFoundation/strax/pull/225"
+  expect: "The answer should mention it uses Jenks natural breaks algorithm"
+
+- id: q021
+  question: "What do the straxen holoviews classes do?"
+  gold_files: ["straxen/straxen/holoviews/"]
+  category: identifier
+  expect: "This requires looking at the holoviews folder and summarizing the
+        classes and their purpose. The corpus has no explicit answer to this
+        question, so it will require some reasoning to answer."
+
+- id: q022
+  question: "How does the merge_arrs function work?"
+  category: usage
+  gold_files: ["strax/strax/chunk.py"]
+  note: "This is explicitly answered in the inline documentation of this function"
+  expect: "Merges together two structured arrays of the same length."
+
+- id: q023
+  question: "What storage backends are available in strax and what can they store?"
+  gold_files: ["strax/strax/storage/common.py"]
+  category: identifier
+  note: "It should be able to tell us the backends, not sure if it knows what they
+        are for. Need to check in detail for the answer."
+  expect: "Data is stored in local files using the StorageBackend and StorageFrontend
+           classes. Just saying backend is a bit vague so the mongodb interface
+           might be mentioned. Answer should reflect that the question is a bit
+           ambiguous"
+
+- id: q024
+  question: "What backends are available in xedocs?"
+  gold_files: 
+    - "xedocs/xedocs/data_locations/github.py"
+    - "xedocs/xedocs/data_locations/mongodb.py"
+    - "xedocs/xedocs/data_locations/data_folder.py"
+  category: identifier
+  require_all: true
+  note: "Requires looking at the data_locations folder and summarizing 
+        the backends available."
+  expect: "Github, mongodb and local data files should be mentioned."
+
+- id: q025
+  question: "What is the difference between data kinds and data type in strax?"
+  gold_files: ["strax/docs/source/advanced/chunking.rst"]
+  category: identifier
+  note: "This is explicitly answered in the plugins documentation."
+  expect: "All data lives in data types, such as raw_records or peak_basics. 
+          Each of these has a fixed numpy datatype.
+
+          If a single row of two data types refers to the same physical / 
+          logical thing, such as an event or a peak, we say those data 
+          types have the same data_kind."
+
+- id: q026
+  question: "What does 'Cannot write to zipfiles' mean?"
+  gold_files: ["strax/strax/storage/zipfiles.py"]
+  category: error
+  expect: "A few thigs can trigger this error message, answer
+         should be a summary of these possible errors."
+
+- id: q027
+  question: "I get a DataNotAvailable error when loading peaks,
+            why am I getting this error?"
+  gold_files: ["straxen/straxen/plugins/peaks/peaks_vanilla.py"]
+  category: error
+  expect: "This is the most likely cause of this error, but there are other 
+        possible causes. There is a high chance this is not caught as 
+        there is no data to reflect the likelyhood of this error. 
+        A refusal without further info is also acceptable."
+
+- id: q028
+  question: "What causes 'Cannot patch {k}: not in registry'? error?"
+  gold_files: ["straxen/straxen/scripts/bootstrax.py"]
+  category: error
+  note: "Simple error, only one thing causes this in straxen."
+  expect: "The function run_strax triggers it if a given class was
+           called that was not registered."
+
+- id: q029
+  question: "How do I write my own plugin that depends on events?"
+  gold_files: ["strax/docs/source/advanced/plugin_dev.rst"]
+  category: abstract
+  note: "Most of the answer is in the gold file but requires the recognition
+        that it can substitute 'peaks' or 'records' for 'events'.
+        PluginName():
+          depends_on('events')"
+
+- id: q030
+  question: "What methods do I have to implement when subclassing strax.Plugin?"
+  gold_files: ["strax/strax/plugins/plugin.py"]
+  category: abstract
+  note: "This is answered by sumarizing the plugin class and its methods."
+  expect: "compute is the only function that needs to be implemented. It
+           is the only method in an 'abstract' from as it just raises a
+           not implemented error."
+
+- id: q031
+  question: "What is the difference between straxen and strax?"
+  gold_files: 
+    - "strax/README.md"
+    - "straxen/README.md" 
+  category: identifier
+  require_all: true
+  note: "" # Will write note later
+  expect: "Strax is a general framework for pulse singal processing,
+            while straxen is the XENONnT spesific implementation of this
+            processing."
+
+- id: q032
+  question: "How do I use DataSelectionHist?"
+  gold_files: ["straxen/straxen/analyses/bokeh_waveform_plot.py"] # Need to find
+  category: deprecation
+  note: "This should warn about the deprecation of this class."
+  expect: "This class is depreciated and no longer available."
+
+- id: q033
+  question: "What is the difference between peaks and peaklets?"
+  gold_files: 
+    - "straxen/straxen/plugins/peaks/peaks_vanilla.py"
+    - "straxen/straxen/plugins/peaklets/peaklets.py"
+  category: identifier
+  require_all: true
+  note: "This is a common question that is well covered in the corpus. The answer
+        should be able to be extracted from the corpus."
+  expect: "Peaklets are the result of using the peak splitting algorithm
+           in the time integrated wavefrom signals. We generate peaks by taking
+           the peaklets classified as S2s and merging them when appropriate.
+           S1s do not change."
+
+- id: q034
+  question: "When should I use a LoopPlugin instead of a regular Plugin?"
+  gold_files: ["strax/strax/plugins/loop_plugin.py"]
+  category: identifier
+  expect: "Need a loop plugin when you need to find where data kind x
+           for example appears in data kind y as it needs to loop over
+           data kind x to find the desired results."
+
+- id: q035
+  question: "What does s2_min_pmts control?"
+  gold_files: ["straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py"]
+  category: configuration
+  expect: "Establishes the minimum number of PMTs that need to contribute 
+           to a signal for it to be considered an S2."
+
+- id: q036
+  question: "What's the default value of s1_min_coincidence?"
+  gold_files: ["straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py"]
+  category: configuration
+  expect: "This is just a number retrival, answer should be 2."
+
+- id: q037
+  question: "How do I cut a new strax release?"
+  gold_files: ["strax/docs/source/developer/release.rst"]
+  category: process
+  note: "Information future maintainers might need."
+  expect: "Update personal fork & local master to Axfoundation fork
+          Edit and commit HISTORY.md
+          bumpversion patch (or minor/major, as appropriate)
+          Push to personal and AxFoundation fork, with --tags
+          fast-foward and push AxFoundation/stable
+          Add release info on release page of github website"
+
+- id: q038
+  question: "How do I cut a new release of straxen?"
+  gold_files: []
+  category: refusal
+  note: "These is actually no file with information about this in
+         straxen. You only see the message containing the answer 
+         when making a new PR."
+  expect: "Model should refuse to answer as the data for this is not available."
+
+- id: q039
+  question: "How do I cut a new release?"
+  gold_files:
+    - "strax/docs/source/developer/release.rst"
+    - "xedocs/tasks.py"
+    - "rframe/tasks.py"
+  category: process
+  require_all: false
+  note: "Question is vague, so it should either point at all available files
+         or refuse."
+
+- id: q040
+  question: "What is an rframe schema?"
+  gold_files: 
+    - "rframe/rframe/schema.py"
+    - "xedocs/docs/advanced_usage.rst"
+  category: identifier
+  require_all: false
+  expect: "A schema is a python class that inherits from rframe.BaseSchema
+           and its used to define and query structured data."
+
+- id: q041
+  question: "How does xedocs use rframe's indexing?"
+  gold_files: 
+    - "rframe/rframe/indexes/"
+    - "xedocs/xedocs/schemas/base_schemas.py"
+    - "xedocs/xedocs/schemas/pmt_data/pmts.py"
+    - "xedocs/xedocs/schemas/context_config.py"
+    - "xedocs/notebooks/Defining_Schemas.ipynb"
+    - "xedocs/xedocs/schemas/corrections/implementations/"
+  require_all: false
+  category: identifier
+  note: "This is involved in all aspects of xedocs. Might be hard to
+         find all sources so this might not be well sumarized."
+  expect: "rframe indecies are extensively used though most classes in xedocs
+           requiring at least a time index. Other indecies can be added to 
+           fetch data as necessary. A few examples of how they are used
+           is expected"
+
+- id: q042
+  question: "How do I load a tensorflow model in straxen?"
+  gold_files:
+    - "straxen/straxen/config/protocols.py"
+    - "straxen/straxen/config/url_config.py"
+  category: process
+  note: "Related to URLConfigs and understanding how they work"
+  expect: "When writing the URLConfig include the tf name in the first 
+           section of the url."

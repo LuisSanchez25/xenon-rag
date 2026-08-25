@@ -473,6 +473,45 @@ def test_changelog_is_skipped(repo):
  
 def test_autodoc_stub_is_skipped(repo):
     assert all(".. automodule::" not in c["text"] for c in chunks_of(repo))
+
+
+def test_symlinked_directory_is_not_walked_twice(tmp_path):
+    """straxen symlinks docs/source/tutorials -> notebooks/tutorials. The
+    files inside are not themselves symlinks, so a per-file check misses it."""
+    import os, json as _json
+    root = tmp_path / "symrepo"
+    (root / "notebooks" / "tutorials").mkdir(parents=True)
+    (root / "docs" / "source").mkdir(parents=True)
+    nb = {"cells": [
+        {"cell_type": "markdown",
+         "source": ["# Loading data\n", "\n",
+                    "How to load data from a run in the framework.\n"]},
+        {"cell_type": "code",
+         "source": ["st = straxen.contexts.xenonnt_online()\n",
+                    "peaks = st.get_array(run_id, 'peaks')\n"]},
+    ]}
+    (root / "notebooks" / "tutorials" / "demo.ipynb").write_text(_json.dumps(nb))
+    os.symlink("../../notebooks/tutorials", root / "docs" / "source" / "tutorials")
+ 
+    chunks = chunks_of(root)
+    assert chunks
+    assert all("docs/source/tutorials" not in c["path"] for c in chunks)
+    assert ch.dedupe_chunks(chunks)[1] == 0, "symlink slipped through to dedupe"
+ 
+ 
+def test_build_tooling_is_skipped(tmp_path):
+    """tasks.py and friends are copied verbatim between projects and answer
+    no question a user of the analysis framework would ask."""
+    root = tmp_path / "toolrepo"
+    root.mkdir()
+    (root / "tasks.py").write_text(
+        'def lint_flake8(c):\n    """Run flake8."""\n    c.run("flake8")\n')
+    (root / "noxfile.py").write_text('def tests(session):\n    """Run tests."""\n    pass\n')
+    (root / "real.py").write_text('def merge(a, b):\n    """Merge peaks."""\n    return a + b\n')
+    names = [c["name"] for c in chunks_of(root)]
+    assert "merge" in names
+    assert "lint_flake8" not in names
+    assert "tests" not in names
  
  
 def test_tests_directory_is_skipped(repo):

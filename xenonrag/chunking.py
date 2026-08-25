@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import ast
 import json
+import os
 import re
 import hashlib
 from pathlib import Path
@@ -49,6 +50,7 @@ SKIP_DIR_PARTS = {
 SKIP_FILENAMES = {
     "HISTORY.md", "CHANGELOG.md", "CHANGES.md", "CHANGELOG.rst",
     "AUTHORS.md", "CONTRIBUTORS.md", "CODE_OF_CONDUCT.md",
+    "setup.py", "conftest.py", "versioneer.py", "_version.py",
 }
 
 # A prose chunk that is mostly Sphinx directives carries no information --
@@ -268,12 +270,28 @@ def _class_card(cls, src: str, rel: str) -> str:
     return "\n".join(parts)
 
 
-def _continuation_header(node, rel: str, parent: str | None = None) -> str:
+def _class_line(parent: str | None, parent_bases: list[str] | None) -> list[str]:
+    """The `Class:` / `Inherits from:` lines for a method chunk.
+ 
+    A method retrieved on its own is orphaned from its class hierarchy.
+    straxen's PeakletClassificationHighEnergy.compute is nothing but
+    `return super().compute(peaklets_he)` -- without the base class named in
+    the header, neither the embedding nor the model has any way to find out
+    what it actually does.
+    """
+    if not parent:
+        return []
+    lines = [f"Class: {parent}"]
+    if parent_bases:
+        lines.append(f"Inherits from: {', '.join(parent_bases)}")
+    return lines
+
+
+def _continuation_header(node, rel: str, parent: str | None = None,
+                         parent_bases: list[str] | None = None) -> str:
     """Header for parts 2+, repeating signature and docstring so every piece
     is self-describing when retrieved alone."""
-    lines = [f"File: {rel}"]
-    if parent:
-        lines.append(f"Class: {parent}")
+    lines = [f"File: {rel}"] + _class_line(parent, parent_bases)
     lines.append(f"{'Method' if parent else 'Function'}: {node.name}")
     # Docstring first: it carries the meaning, and if the embedding cap has to
     # cut something it should cut the parameter list.
@@ -298,7 +316,8 @@ def _body_opening(node, seg: str, n_lines: int) -> str:
     return "\n".join(seg.splitlines()[offset:offset + n_lines])
 
 
-def _summary_text(node, seg: str, rel: str, parent: str | None = None) -> str:
+def _summary_text(node, seg: str, rel: str, parent: str | None = None,
+                  parent_bases: list[str] | None = None) -> str:
     """One self-contained chunk for a very long function: signature, full
     docstring, and the opening of the body."""
     lines = [f"File: {rel}"]
@@ -365,16 +384,16 @@ def _classify(node, seg: str) -> str | None:
 
 
 def _emit_callable(node, src, *, repo, rel, commit, chunks, parent=None,
-                   public_api=False):
+                   parent_bases=None, public_api=False):
     """Emit chunk(s) for one function or method."""
     seg = ast.get_source_segment(src, node)
     if not seg:
         return
-
+ 
+    status = _classify(node, seg)
     kind = "method" if parent else "function"
     qual = f"{parent}.{node.name}" if parent else node.name
-    status = _classify(node, seg)
-
+ 
     # A function is summarised either because it is long, or because its
     # signature is so large that the raw source would embed as a wall of
     # parameter defaults with the docstring truncated off the end.
@@ -382,12 +401,12 @@ def _emit_callable(node, src, *, repo, rel, commit, chunks, parent=None,
         raw_sig_len = len(ast.unparse(node.args))
     except Exception:
         raw_sig_len = 0
-
+ 
     wide_and_truncated = (raw_sig_len > MAX_SIGNATURE_CHARS
                           and len(seg) > EMBED_MAX_CHARS)
     if len(seg) > SUMMARY_THRESHOLD or wide_and_truncated:
         chunks.append(_mk(
-            _summary_text(node, seg, rel, parent),
+            _summary_text(node, seg, rel, parent, parent_bases),
             context_text=seg,
             repo=repo, path=rel, commit=commit,
             start_line=node.lineno, end_line=_end_line(node, node.lineno),
@@ -395,16 +414,15 @@ def _emit_callable(node, src, *, repo, rel, commit, chunks, parent=None,
             status=status,
         ))
         return
-
-    base_header = [f"File: {rel}"]
-    if parent:
-        base_header.append(f"Class: {parent}")
+ 
+    base_header = [f"File: {rel}"] + _class_line(parent, parent_bases)
     base_header.append(f"{'Method' if parent else 'Function'}: {node.name}")
     first_header = "\n".join(base_header) + "\n\n"
-
+ 
     pieces = _split_long(seg, EMBED_MAX_CHARS, OVERLAP_CHARS)
     for i, piece in enumerate(pieces):
-        header = first_header if i == 0 else _continuation_header(node, rel, parent)
+        header = (first_header if i == 0
+                  else _continuation_header(node, rel, parent, parent_bases))
         suffix = "" if i == 0 else f" (part {i + 1})"
         chunks.append(_mk(
             header + piece,
@@ -419,20 +437,21 @@ def _emit_callable(node, src, *, repo, rel, commit, chunks, parent=None,
 def chunk_python(path: Path, repo: str, commit: str, root: Path,
                  public_modules: set[str] | None = None) -> list[dict]:
     src = path.read_text(encoding="utf-8", errors="ignore")
+    rel = str(path.relative_to(root))
     try:
-        tree = ast.parse(src)
+        # filename= so a SyntaxWarning from third-party source names the file
+        # rather than reporting "<unknown>".
+        tree = ast.parse(src, filename=rel)
     except SyntaxError:
         return []
-
-    rel = str(path.relative_to(root))
+ 
     module = rel.replace("/", ".").removesuffix(".py").removesuffix(".__init__")
     public = bool(public_modules) and any(
         module.endswith(m) or m.endswith(module) for m in public_modules
     )
-
+ 
     chunks: list[dict] = []
-
-    # Module docstring.
+ 
     mod_doc = ast.get_docstring(tree)
     if mod_doc and len(mod_doc.strip()) > 40:
         chunks.append(_mk(
@@ -441,16 +460,15 @@ def chunk_python(path: Path, repo: str, commit: str, root: Path,
             start_line=1, end_line=1,
             kind="module_docstring", name=Path(rel).stem, public_api=public,
         ))
-
-    # Only iterate top-level nodes. Nested helpers inside functions are noise.
+ 
     for node in tree.body:
-
+ 
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             _emit_callable(node, src, repo=repo, rel=rel, commit=commit,
                            chunks=chunks, public_api=public)
-
+ 
         elif isinstance(node, ast.ClassDef):
-            # 1. the card
+            bases = [ast.unparse(b) for b in node.bases]
             full_card = _class_card(node, src, rel)
             chunks.append(_mk(
                 full_card, context_text=full_card,
@@ -458,8 +476,7 @@ def chunk_python(path: Path, repo: str, commit: str, root: Path,
                 start_line=node.lineno, end_line=_end_line(node, node.lineno),
                 kind="class_card", name=node.name, public_api=public,
             ))
-
-            # 2. config options as their own chunk(s)
+ 
             _, configs = _split_class_body(node)
             if configs:
                 segs = [ast.get_source_segment(src, n) for n in configs]
@@ -478,8 +495,7 @@ def chunk_python(path: Path, repo: str, commit: str, root: Path,
                         kind="class_config",
                         name=f"{node.name} config{suffix}", public_api=public,
                     ))
-
-            # 3. one chunk per method
+ 
             for m in node.body:
                 if not isinstance(m, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     continue
@@ -488,8 +504,9 @@ def chunk_python(path: Path, repo: str, commit: str, root: Path,
                         and len(seg) < 200:
                     continue
                 _emit_callable(m, src, repo=repo, rel=rel, commit=commit,
-                               chunks=chunks, parent=node.name, public_api=public)
-
+                               chunks=chunks, parent=node.name,
+                               parent_bases=bases, public_api=public)
+ 
     return chunks
 
 
@@ -639,6 +656,8 @@ def chunk_notebook(path: Path, repo: str, commit: str, root: Path) -> list[dict]
 # driver
 # --------------------------------------------------------------------------
 
+NEVER_DEDUPE = {"tasks.py", "noxfile.py", "Makefile"}
+
 def dedupe_chunks(chunks: list[dict]) -> tuple[list[dict], int]:
     """Drop chunks whose embedded text duplicates one already kept.
  
@@ -666,6 +685,8 @@ def dedupe_chunks(chunks: list[dict]) -> tuple[list[dict], int]:
  
     def fingerprint(c: dict) -> str:
         body = c["text"].replace(c["path"], "<path>")
+        if Path(c["path"]).name in NEVER_DEDUPE:
+            body = c["repo"] + body
         return hashlib.sha1(body.encode("utf-8")).hexdigest()
  
     winner: dict[str, int] = {}
@@ -691,21 +712,41 @@ def documented_modules(root: Path) -> set[str]:
     return found
 
 
-def chunk_repo(root: Path, repo: str, commit: str) -> list[dict]:
-    public = documented_modules(root)
+def chunk_repo(root: Path, repo: str, commit: str,
+               ) -> list[dict]:
+    """Chunk every supported file under `root`.
+ 
+    `visibility` is stamped on every chunk. Use "internal" for anything from a
+    private repository or hand-copied collaboration documentation, so a public
+    build can filter it out. Getting this wrong is how private material ends
+    up committed to a public repo alongside the index.
+    """
+
     chunks: list[dict] = []
-    for path in sorted(root.rglob("*")):
-        if not path.is_file():
-            continue
-        rel = path.relative_to(root)
-        if should_skip(rel):
-            continue
-        if path.suffix == ".py":
-            chunks.extend(chunk_python(path, repo, commit, root, public))
-        elif path.suffix in {".md", ".rst"}:
-            chunks.extend(chunk_prose(path, repo, commit, root))
-        elif path.suffix == ".ipynb":
-            chunks.extend(chunk_notebook(path, repo, commit, root))
+    # os.walk with followlinks=False, rather than rglob, because rglob
+    # descends into symlinked directories. straxen symlinks
+    # docs/source/tutorials -> notebooks/tutorials, and the files inside are
+    # not themselves symlinks, so a per-file check cannot see it. Walking
+    # without following links skips the whole tree once.
+    for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
+        here = Path(dirpath)
+        dirnames[:] = sorted(d for d in dirnames
+                             if d not in SKIP_DIR_PARTS
+                             and not (here / d).is_symlink())
+        for fname in sorted(filenames):
+            path = here / fname
+            if path.is_symlink():
+                continue
+            rel = path.relative_to(root)
+            if should_skip(rel):
+                continue
+            if path.suffix == ".py":
+                chunks.extend(chunk_python(path, repo, commit, root))
+            elif path.suffix in {".md", ".rst"}:
+                chunks.extend(chunk_prose(path, repo, commit, root))
+            elif path.suffix == ".ipynb":
+                chunks.extend(chunk_notebook(path, repo, commit, root))
+ 
     return chunks
 
 

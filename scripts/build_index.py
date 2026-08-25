@@ -22,8 +22,7 @@ from xenonrag.embed import get_embedder           # noqa: E402
 from xenonrag.index import build_index            # noqa: E402
 
 
-DEFAULT_REPOS = ["strax", "straxen", "xedocs"]
-
+DEFAULT_REPOS = ["strax", "straxen", "xedocs", "rframe"]
 
 def head_commit(path: Path) -> str:
     r = subprocess.run(["git", "-C", str(path), "rev-parse", "HEAD"],
@@ -38,6 +37,11 @@ def main():
     ap.add_argument("--out", type=Path, default=Path("build"))
     ap.add_argument("--only", nargs="*", default=DEFAULT_REPOS,
                     help="which repos to index")
+    ap.add_argument("--extra-docs", nargs="*", default=[], type=Path,
+                    help="extra documentation directories to index. Each is "
+                         "treated as its own source, named after the directory. "
+                         "Use for material not in a cloned repo, e.g. a README "
+                         "copied out of a private repository.")
     ap.add_argument("--model", default="bge-small")
     ap.add_argument("--device", default=None,
                     help="'cpu' or 'cuda'. CPU is fine and leaves the GPU free.")
@@ -55,6 +59,16 @@ def main():
         commits[name] = commit
         chunks = chunk_repo(path, name, commit)
         print(f"{name:10s} {len(chunks):5d} chunks  @ {commit[:10]}")
+        all_chunks.extend(chunks)
+
+    for docs_dir in args.extra_docs:
+        if not docs_dir.is_dir():
+            print(f"skipping {docs_dir}: not a directory")
+            continue
+        name = docs_dir.name
+        commit = head_commit(docs_dir)          # "unknown" if not a git repo
+        chunks = chunk_repo(docs_dir, name, commit)
+        commits[name] = commit
         all_chunks.extend(chunks)
 
     if not all_chunks:
