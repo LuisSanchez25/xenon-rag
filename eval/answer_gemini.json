@@ -1,0 +1,1115 @@
+[
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q001",
+    "question": "How does the get_corrections function work?",
+    "category": "refusal",
+    "expect": "Should produce a deprecation error/warning. This function is no longer implemented in straxen.",
+    "gold_files": [],
+    "retrieved": [
+      "strax/docs/source/developer/corrections.rst:4",
+      "xedocs/xedocs/databases.py:21",
+      "strax/strax/context.py:1912",
+      "xedocs/docs/corrections.rst:44",
+      "extra_docs/corrections/README.md:28",
+      "xedocs/xedocs/schemas/corrections/base_corrections.py:75",
+      "xedocs/xedocs/schemas/corrections/base_references.py:38",
+      "xedocs/xedocs/schemas/corrections/base_references.py:58"
+    ],
+    "answer": "The provided excerpts do not contain information about a `get_corrections` function or how it works. \n\nSpecifically, documentation or code defining `get_corrections`, its arguments, and its operational steps is missing from the provided text. To find out how `get_corrections` works, you should check the `straxen` or `xedocs` source code and API documentation directly where correction loading and helper functions are defined.",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 4,
+    "n_citations_grounded": 4,
+    "id": "q002",
+    "question": "How do I add a new correction value to be used for processing?",
+    "category": "usage",
+    "expect": "Load the schema using xedocs, fill in the required index fields, convert the data into a json and save the file in the corrections repo under [schema_name]/data/[version...].json",
+    "gold_files": [
+      "xedocs/xedocs/schemas/corrections/base_corrections.py",
+      "corrections/README.md"
+    ],
+    "retrieved": [
+      "extra_docs/corrections/README.md:28",
+      "extra_docs/corrections/README.md:12",
+      "extra_docs/corrections/README.md:86",
+      "extra_docs/corrections/README.md:86",
+      "xedocs/xedocs/schemas/corrections/base_corrections.py:275",
+      "xedocs/xedocs/schemas/corrections/base_references.py:38",
+      "xedocs/xedocs/schemas/corrections/base_references.py:49",
+      "xedocs/xedocs/schemas/corrections/base_corrections.py:215"
+    ],
+    "answer": "To add a new correction value to be used for processing:\n\n### Procedure for Existing Corrections\n1. **Create a git branch:** Git pull and create a new branch in the corrections repository for inserting the correction [extra_docs/corrections/README.md:28-41].\n2. **Conform to schema:** Find the relevant schema in `xedocs` and create documents conforming to that schema [extra_docs/corrections/README.md:28-41].\n3. **Add data files:** Create a `data` subfolder containing JSON files with values for the specific versions and time periods to set in the corrections database [extra_docs/corrections/README.md:86-113]. \n\n### Versioning and Insertion Rules\nWhen adding correction values, you must adhere to versioning rules:\n* **`ONLINE` Version:** Used in the DAQ with extrapolation. You can only change values in the future, never the past [extra_docs/corrections/README.md:12-25]. \n  * For `TimeSampledCorrection`, insertion of `ONLINE` values is only permitted after the clock cutoff datetime [xedocs/xedocs/schemas/corrections/",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q003",
+    "question": "How do I add a new correction for processing?",
+    "category": "process",
+    "expect": "Finilize code used to generate the correction, present the results in team BC meeting, upload data files (if any), create a new xedocs schema, define time depedance, make a new branch and insert the corrections as a json file, finally document the necessary information.",
+    "gold_files": [
+      "corrections/README.md"
+    ],
+    "retrieved": [
+      "extra_docs/corrections/README.md:28",
+      "extra_docs/corrections/README.md:86",
+      "extra_docs/corrections/README.md:86",
+      "extra_docs/corrections/README.md:86",
+      "extra_docs/corrections/README.md:86",
+      "extra_docs/corrections/README.md:12",
+      "straxen/straxen/plugins/events/corrected_areas.py:199",
+      "straxen/straxen/plugins/events/corrected_areas.py:76"
+    ],
+    "answer": "<<ERROR: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 3,
+    "n_citations_grounded": 3,
+    "id": "q004",
+    "question": "What does to_pe mean?",
+    "category": "identifier",
+    "expect": "This is a conversion from PMT voltage change to number of photo-electrons",
+    "gold_files": [
+      "straxen/straxen/plugins/records/records.py",
+      "xedocs/xedocs/schemas/corrections/implementations/pmt_area_to_pe.py"
+    ],
+    "retrieved": [
+      "xedocs/xedocs/schemas/corrections/implementations/pmt_area_to_pe.py:15",
+      "extra_docs/corrections/README.md:163",
+      "extra_docs/corrections/README.md:135",
+      "extra_docs/corrections/README.md:169",
+      "xedocs/README.rst:35",
+      "straxen/notebooks/tutorials/pulse_analysis.ipynb:42",
+      "xedocs/xedocs/cli.py:26",
+      "xedocs/xedocs/schemas/corrections/implementations/se_gains.py:20"
+    ],
+    "answer": "`to_pe` refers to the ADC to photoelectron (PE) conversion factors [straxen/notebooks/tutorials/pulse_analysis.ipynb:42-42]. \n\nIt is retrieved from a plugin as shown in this excerpt [straxen/notebooks/tutorials/pulse_analysis.ipynb:42-42]:\n\n```python\n# Hack to get ADC -> PE conversion factors. We'll make this better someday...\nto_pe = st.get_single_plugin(run_id, \"peaklets\").to_pe\n```\n\nThe term is also used to represent values fetched from the `pmt_area_to_pes` schema database in `xedocs` [xedocs/README.rst:35-155].",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q005",
+    "question": "How do I load data from SR3 using global v18 corrections?",
+    "category": "refusal",
+    "expect": "The corpus has no information on this. The question is specific to a particular experiment and data release, and is a potentially common question",
+    "gold_files": [],
+    "retrieved": [
+      "strax/strax/storage/common.py:485",
+      "straxen/straxen/plugins/events/corrected_areas.py:54",
+      "straxen/straxen/plugins/events/corrected_areas.py:60",
+      "xedocs/notebooks/Reprocessing_with_xedocs_corrections.ipynb:19",
+      "xedocs/xedocs/schemas/corrections/base_references.py:38",
+      "straxen/straxen/plugins/events/corrected_areas.py:85",
+      "straxen/straxen/config/protocols.py:86",
+      "straxen/straxen/plugins/events/corrected_areas.py:69"
+    ],
+    "answer": "The provided excerpts do not contain information on how to load data from SR3 or how to configure global v18 corrections.\n\nMissing from the excerpts is:\n- Context definitions or functions for setting up an SR3 processing environment.\n- Details on how global correction versions (such as `v18`) are specified or passed via URLConfigs or contexts in `straxen` and `xedocs`.\n\nYou may want to look instead in the `straxen.contexts` module documentation, the `xedocs` documentation on global correction versions, or the XENON analysis release notes for SR3.",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q006",
+    "question": "How does the peaklet classification work?",
+    "category": "process",
+    "expect": "The SOM classification is the default and uses the output of the vanilla classification to remove some signals.",
+    "gold_files": [
+      "straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py",
+      "straxen/straxen/plugins/peaklets/peaklet_classification_som.py"
+    ],
+    "retrieved": [
+      "straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py:73",
+      "straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py:73",
+      "straxen/straxen/plugins/peaklets/peaklet_classification_som.py:24",
+      "straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py:12",
+      "straxen/straxen/plugins/peaklets/peaklets.py:216",
+      "straxen/straxen/plugins/peaklets/peaklet_classification_som.py:86",
+      "straxen/straxen/plugins/peaks/peaks_vanilla.py:45",
+      "straxen/straxen/plugins/peaklets/peaklet_positions_cnf.py:207"
+    ],
+    "answer": "/peaklet_classification_som.py:86-122].\n- Calls `recall_populations(_peaklets, self.som_weight_cube, self.som_img, self.som_norm_factors, self.som_data)` to",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q007",
+    "question": "How does the event building work?",
+    "category": "process",
+    "expect": "Finds peaks the clear and area and proximity requirments. Matches the largest s1 with the largest s2 together to form an event",
+    "gold_files": [
+      "straxen/straxen/plugins/events/events.py"
+    ],
+    "retrieved": [
+      "straxen/straxen/plugins/events_nv/events_nv.py:109",
+      "straxen/straxen/holoviews/holoviews_tpc_event_display.py:119",
+      "straxen/straxen/plugins/events_mv/events_mv.py:10",
+      "straxen/notebooks/tutorials/EventDisplayInteractive.ipynb:24",
+      "straxen/straxen/plugins/events/events.py:9",
+      "straxen/straxen/plugins/events/events.py:51",
+      "straxen/straxen/plugins/events_nv/events_nv.py:53",
+      "straxen/straxen/holoviews_utils.py:397"
+    ],
+    "answer": "<<ERROR: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 2,
+    "n_citations_grounded": 2,
+    "id": "q008",
+    "question": "How does admix work, what can I do with it?",
+    "category": "refusal",
+    "expect": "This corpus has no information on this and should refuse to answer.",
+    "gold_files": [],
+    "retrieved": [
+      "straxen/docs/source/scripts.rst:39",
+      "straxen/docs/source/online_monitor.rst:32",
+      "straxen/straxen/scripts/restrax.py:390",
+      "straxen/straxen/daq_core.py:46",
+      "strax/docs/source/advanced/recompression.rst:129",
+      "straxen/notebooks/tutorials/strax_demo.ipynb:8",
+      "straxen/straxen/scripts/restrax.py:1",
+      "straxen/docs/source/scripts.rst:183"
+    ],
+    "answer": "Based on the provided excerpts, `admix` is a tool used to ship/transfer data stored on the DAQ to distributed storage, specifically transferring data from DAQ local storage to the shared analysis cluster (`dali`) [straxen/docs/source/scripts.rst:39-63, straxen/docs/source/online_monitor.rst:32-52].\n\nRegarding its operation:\n* The transfer of local DAQ storage data to `dali` can only start once a run has finished, and the transfer takes time [straxen/docs/source/online_monitor.rst:32-52].\n\n**Missing Information:**\nThe excerpts do not contain detailed implementation details, command-line arguments, API methods, or configuration instructions for `admix`. The excerpts also do not include any usage or code examples. You should consult the `admix` GitHub repository directly at https://github.com/XENONnT/admix for further details [straxen/docs/source/scripts.rst:39-63].",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q009",
+    "question": "How do I change the default configuration for a plugin?",
+    "category": "usage",
+    "expect": "You need to change the value in the context. After establishing st = straxen.xenonnt...(), we can do st.set_config() with the config name along with the URLConfig to the desired value, or just inserting a number",
+    "gold_files": [
+      "strax/docs/source/advanced/config.rst"
+    ],
+    "retrieved": [
+      "strax/docs/source/advanced/config.rst:1",
+      "xedocs/xedocs/_settings.py:35",
+      "strax/strax/config.py:61",
+      "strax/strax/context.py:939",
+      "xedocs/xedocs/schemas/plugin_lineages.py:74",
+      "xedocs/xedocs/xenon_config.py:76",
+      "strax/strax/config.py:249",
+      "strax/strax/context.py:430"
+    ],
+    "answer": " format rule:\nEvery specific claim ends with the bracketed source string from that excerpt's \"Source:\" line, copied character for character.\n\nLet's draft the response carefully.\n\nDraft:\nTo set or change the default configuration for a plugin option, options are specified using",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q010",
+    "question": "How do I load data from a run?",
+    "category": "usage",
+    "expect": "You first need to establish a context. Then use a function like 'get_array' or 'get_df', spesifying the data type, run_id, ect...",
+    "gold_files": [
+      "straxen/straxen/notebooks/tutorials/Open_data.ipynb",
+      "straxen/docs/source/build_datastructure_doc.py",
+      "straxen/notebooks/tutorials/strax_demo.ipynb"
+    ],
+    "retrieved": [
+      "straxen/straxen/scripts/microstrax.py:50",
+      "straxen/notebooks/tutorials/SuperrunsExample.ipynb:21",
+      "strax/strax/run_selection.py:333",
+      "straxen/notebooks/tutorials/strax_demo.ipynb:27",
+      "straxen/notebooks/tutorials/SuperrunsExample.ipynb:7",
+      "straxen/straxen/config/protocols.py:242",
+      "straxen/straxen/storage/rundb.py:325",
+      "strax/strax/context.py:2121"
+    ],
+    "answer": "To load data from a run using a context object (`st`), you use `get_df` to return a pandas DataFrame or `get_array` to return a numpy structured array [straxen/notebooks/tutorials/strax_demo.ipynb:27-27",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q011",
+    "question": "How do I load data from a krypton calibration run?",
+    "category": "refusal",
+    "expect": "Refusal, the text does not have the information necessary to answer this.",
+    "gold_files": [],
+    "retrieved": [
+      "straxen/straxen/scripts/microstrax.py:50",
+      "straxen/straxen/scripts/microstrax.py:50",
+      "straxen/straxen/scripts/microstrax.py:50",
+      "straxen/straxen/scripts/bootstrax.py:997",
+      "xedocs/xedocs/schemas/calibrations/sources.py:19",
+      "straxen/straxen/config/protocols.py:86",
+      "straxen/notebooks/tutorials/SuperrunsExample.ipynb:7",
+      "straxen/notebooks/tutorials/SuperrunsExample.ipynb:21"
+    ],
+    "answer": "The provided excerpts do not contain information on how to load data specifically from a krypton calibration run. \n\nMissing from the excerpts are details on krypton-specific run modes, context setup/configs, target data types for krypton calibrations, or examples loading krypton dataset runs. You might want to look instead at the main `straxen` documentation, `straxen` context configuration guides, or analysis notebooks covering krypton data processing.",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q012",
+    "question": "Is midway2/3 down?",
+    "category": "refusal",
+    "expect": "Refusal, the text does not have the information necessary to answer this.",
+    "gold_files": [],
+    "retrieved": [
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:159",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:153",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:163",
+      "straxen/straxen/plugins/aqmon_hits/aqmon_hits.py:86",
+      "straxen/straxen/plugins/peaks/peak_proximity.py:60",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:149",
+      "straxen/straxen/plugins/events/corrected_areas.py:154",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:187"
+    ],
+    "answer": "The provided excerpts do not contain information about the status of the midway2 or midway3 clusters. They only describe configuration options for specific analysis plugins (`MergedS2s`, `AqmonHits`, `PeakProximity`, and `CorrectedAreas`).\n\nTo check if midway2/3 is down, you should check the cluster's system status page, check computing infrastructure announcements, or contact the cluster administrators or XENON computing support.",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q013",
+    "question": "Is there a way to analyze the data interactively?",
+    "category": "usage",
+    "expect": "Answer should contain st.event_display_interactive indicating the desired configuration, importing bklt and using bklt.show",
+    "gold_files": [
+      "straxen/notebooks/tutorials/EventDisplayInteractive.ipynb"
+    ],
+    "retrieved": [
+      "straxen/notebooks/tutorials/ScadaInterfaceExample.ipynb:21",
+      "xedocs/docs/advanced_usage.rst:51",
+      "straxen/notebooks/tutorials/Open_data.ipynb:2",
+      "xedocs/xedocs/schemas/historian_reader.py:8",
+      "xedocs/notebooks/basics.ipynb:13",
+      "xedocs/notebooks/Accessing_and_inserting_data.ipynb:35",
+      "straxen/notebooks/tutorials/Open_data.ipynb:42",
+      "xedocs/docs/advanced_usage.rst:91"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 17.859931843s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-3.6-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '17s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q014",
+    "question": "How do I check the detector conditions during a given time?",
+    "category": "usage",
+    "expect": "You need to establish a scada context like straxen.SCADAInterface() and use functions like get_scada_values, spesifying the parameter of interest as well as a time range.",
+    "gold_files": [
+      "straxen/notebooks/tutorials/ScadaInterfaceExample.ipynb"
+    ],
+    "retrieved": [
+      "xedocs/xedocs/schemas/detector_numbers.py:7",
+      "straxen/straxen/scada.py:198",
+      "strax/strax/processing/general.py:466",
+      "xedocs/HISTORY.rst:88",
+      "strax/strax/processing/general.py:473",
+      "strax/strax/processing/general.py:459",
+      "straxen/straxen/plugins/raw_records_coin_nv/nveto_recorder.py:458",
+      "xedocs/notebooks/basics.ipynb:5"
+    ],
+    "answer": "<<ERROR: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q015",
+    "question": "How does the single electron gain correction affect the data analysis?",
+    "category": "process",
+    "expect": "Affects the corrected_areas calculation.",
+    "gold_files": [
+      "straxen/straxen/plugins/events/corrected_areas.py"
+    ],
+    "retrieved": [
+      "xedocs/xedocs/schemas/corrections/implementations/avg_se_gain.py:1",
+      "xedocs/xedocs/schemas/corrections/implementations/se_gains.py:1",
+      "xedocs/xedocs/schemas/corrections/implementations/se_gain_partition.py:1",
+      "straxen/straxen/plugins/events/corrected_areas.py:122",
+      "xedocs/xedocs/schemas/corrections/implementations/extraction_efficiency.py:1",
+      "straxen/straxen/plugins/events/corrected_areas.py:69",
+      "straxen/straxen/plugins/events/corrected_areas.py:13",
+      "xedocs/xedocs/schemas/corrections/implementations/lone_hits.py:1"
+    ],
+    "answer": "The single electron gain (SEG) correction affects data analysis in the following ways:\n\n* **Target Output**: It directly affects corrected area calculations (such as `cS2`) within the `CorrectedAreas` plugin [xedocs/xedocs/schemas/corrections/implement",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q016",
+    "question": "How do URLConfigs work?",
+    "category": "process",
+    "expect": "This mainly consists of 3 main parts separated by '://' which include the protocol for processing the data, the database location, and details like the correction name, the version, ect... amongst other details needed for the individual correction.",
+    "gold_files": [
+      "straxen/straxen/config/url_config.py",
+      "straxen/docs/source/url_configs.rst"
+    ],
+    "retrieved": [
+      "straxen/docs/source/url_configs.rst:2",
+      "straxen/docs/source/url_configs.rst:2",
+      "straxen/straxen/config/url_config.py:152",
+      "straxen/straxen/config/url_config.py:169",
+      "straxen/straxen/config/url_config.py:219",
+      "straxen/straxen/config/url_config.py:228",
+      "straxen/straxen/config/url_config.py:47",
+      "straxen/straxen/config/url_config.py:174"
+    ],
+    "answer": "url_config.py:219-226].\n\n4. **Fetching/Evaluation**:\n   The value is fetched via `fetch` when needed by the plugin [straxen/straxen/config/url_config.py:47-51",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q017",
+    "question": "What is the procedure for adding new functionality to strax?",
+    "category": "process",
+    "expect": "In the PR write what the code does, explain how it works, give a minimal example. If applicable, update docstrings and documentation, test the code works and say if it solves an open issue, make sure all automatic tests pass.",
+    "gold_files": [
+      "strax/docs/pull_request_template.md"
+    ],
+    "retrieved": [
+      "straxen/docs/source/extending_straxen.rst:1",
+      "straxen/straxen/scripts/bootstrax.py:510",
+      "strax/strax/context.py:249",
+      "straxen/docs/source/url_configs.rst:116",
+      "straxen/straxen/scripts/straxer.py:124",
+      "strax/docs/source/index.rst:2",
+      "strax/docs/source/developer/release.rst:1",
+      "straxen/straxen/scripts/straxer.py:14"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 23.107093144s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '23s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q018",
+    "question": "What are the different kinds of plugins available in strax?",
+    "category": "identifier",
+    "expect": "Should mention plugin bases such as cut_plugin, loop_plugins, merge_only_plugins, overlap_window_plugin, parallel_source_plugind and the main plugin.py amost others.",
+    "gold_files": [
+      "strax/docs/source/advanced/plugin_dev.rst"
+    ],
+    "retrieved": [
+      "strax/strax/plugins/plugin.py:1",
+      "strax/docs/source/advanced/plugin_dev.rst:28",
+      "strax/docs/source/advanced/plugin_dev.rst:40",
+      "strax/docs/source/advanced/plugin_dev.rst:28",
+      "strax/strax/plugins/plugin.py:363",
+      "strax/strax/plugins/plugin.py:49",
+      "strax/strax/plugins/plugin.py:793",
+      "strax/strax/plugins/parrallel_source_plugin.py:20"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 6.536404873s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-3.6-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '6s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q019",
+    "question": "How do I use the overlap_indices function?",
+    "category": "usage",
+    "expect": "Given two intervals, returns the time where they overlap.",
+    "gold_files": [
+      "strax/strax/processing/general.py"
+    ],
+    "retrieved": [
+      "strax/strax/processing/general.py:312",
+      "xedocs/docs/advanced_usage.rst:91",
+      "strax/docs/source/advanced/plugin_dev.rst:91",
+      "strax/docs/source/developer/overlaps.rst:10",
+      "strax/strax/plugins/overlap_window_plugin.py:128",
+      "rframe/rframe/interfaces/mongo.py:533",
+      "rframe/rframe/interfaces/mongo.py:669",
+      "strax/strax/plugins/overlap_window_plugin.py:62"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 51.182085138s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '51s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q020",
+    "question": "How does the peak splitting work?",
+    "category": "process",
+    "expect": "The answer should mention it uses Jenks natural breaks algorithm",
+    "gold_files": [
+      "strax/strax/processing/peak_splitting.py"
+    ],
+    "retrieved": [
+      "strax/strax/processing/peak_splitting.py:195",
+      "strax/strax/processing/peak_splitting.py:9",
+      "strax/strax/processing/peak_splitting.py:195",
+      "strax/strax/processing/peak_splitting.py:309",
+      "strax/strax/processing/peak_splitting.py:9",
+      "strax/strax/processing/peak_splitting.py:99",
+      "strax/strax/processing/peak_splitting.py:99",
+      "strax/strax/processing/peak_splitting.py:74"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 35.853868344s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '35s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q021",
+    "question": "What do the straxen holoviews classes do?",
+    "category": "identifier",
+    "expect": "This requires looking at the holoviews folder and summarizing the classes and their purpose. The corpus has no explicit answer to this question, so it will require some reasoning to answer.",
+    "gold_files": [
+      "straxen/straxen/holoviews/"
+    ],
+    "retrieved": [
+      "straxen/straxen/analyses/holoviews_waveform_display.py:1",
+      "straxen/straxen/holoviews_utils.py:15",
+      "straxen/straxen/analyses/holoviews_waveform_display.py:489",
+      "straxen/straxen/holoviews_utils.py:65",
+      "straxen/straxen/holoviews_utils.py:16",
+      "straxen/straxen/holoviews/holoviews_peak_data.py:9",
+      "straxen/straxen/holoviews/holoviews_pmt_array.py:36",
+      "straxen/straxen/holoviews_utils.py:461"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 20.497591482s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '20s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 1,
+    "n_citations_grounded": 1,
+    "id": "q022",
+    "question": "How does the merge_arrs function work?",
+    "category": "usage",
+    "expect": "Merges together two structured arrays of the same length.",
+    "gold_files": [
+      "strax/strax/chunk.py",
+      "strax/strax/utils.py"
+    ],
+    "retrieved": [
+      "strax/strax/utils.py:189",
+      "strax/strax/processing/peak_merging.py:188",
+      "straxen/straxen/plugins/merged_s2s_he/merged_s2s_he.py:27",
+      "rframe/rframe/interfaces/mongo.py:805",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:304",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:205",
+      "strax/strax/processing/peak_merging.py:170",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s_vanilla.py:374"
+    ],
+    "answer": "The `merge_arrs` function merges structured arrays of equal length into a single structured array [strax/strax/utils.py:189-220]. Its step-by-step mechanism is as follows:\n\n1. **Empty array check**: If an",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q023",
+    "question": "What storage backends are available in strax and what can they store?",
+    "category": "identifier",
+    "expect": "Data is stored in local files using the StorageBackend and StorageFrontend classes. Just saying backend is a bit vague so the mongodb interface might be mentioned. Answer should reflect that the question is a bit ambiguous",
+    "gold_files": [
+      "strax/strax/storage/common.py"
+    ],
+    "retrieved": [
+      "strax/strax/storage/common.py:1",
+      "strax/strax/storage/common.py:472",
+      "strax/docs/source/developer/storage.rst:4",
+      "strax/docs/source/basics/overview.rst:66",
+      "strax/strax/storage/common.py:485",
+      "strax/strax/storage/common.py:262",
+      "strax/strax/storage/common.py:667",
+      "strax/strax/storage/common.py:150"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 43.727021923s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '43s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q024",
+    "question": "What backends are available in xedocs?",
+    "category": "identifier",
+    "expect": "Github, mongodb and local data files should be mentioned.",
+    "gold_files": [
+      "xedocs/xedocs/data_locations/github.py",
+      "xedocs/xedocs/data_locations/mongodb.py",
+      "xedocs/xedocs/data_locations/data_folder.py"
+    ],
+    "retrieved": [
+      "xedocs/notebooks/Accessing_and_inserting_data.ipynb:6",
+      "xedocs/xedocs/xedocs.py:124",
+      "xedocs/README.rst:2",
+      "xedocs/docs/from_cmt.rst:1",
+      "xedocs/xedocs/xedocs.py:128",
+      "xedocs/docs/from_cmt.rst:1",
+      "xedocs/xedocs/xedocs.py:179",
+      "xedocs/notebooks/basics.ipynb:16"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 28.358601928s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '28s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q025",
+    "question": "What is the difference between data kinds and data type in strax?",
+    "category": "identifier",
+    "expect": "All data lives in data types, such as raw_records or peak_basics. Each of these has a fixed numpy datatype.\nIf a single row of two data types refers to the same physical / logical thing, such as an event or a peak, we say those data types have the same data_kind.",
+    "gold_files": [
+      "strax/docs/source/advanced/chunking.rst"
+    ],
+    "retrieved": [
+      "strax/docs/source/advanced/chunking.rst:4",
+      "strax/strax/context.py:453",
+      "strax/docs/source/developer/storage.rst:20",
+      "strax/strax/plugins/plugin.py:363",
+      "straxen/notebooks/tutorials/strax_demo.ipynb:14",
+      "strax/strax/context.py:2823",
+      "strax/docs/source/advanced/plugin_dev.rst:28",
+      "strax/strax/context.py:649"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 13.007337547s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '13s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q026",
+    "question": "What does 'Cannot write to zipfiles' mean?",
+    "category": "error",
+    "expect": "A few thigs can trigger this error message, answer should be a summary of these possible errors.",
+    "gold_files": [
+      "strax/strax/storage/zipfiles.py"
+    ],
+    "retrieved": [
+      "strax/strax/storage/zipfiles.py:69",
+      "strax/strax/storage/zipfiles.py:117",
+      "strax/strax/storage/zipfiles.py:63",
+      "strax/strax/storage/zipfiles.py:66",
+      "strax/strax/storage/zipfiles.py:36",
+      "strax/strax/storage/zipfiles.py:14",
+      "strax/strax/storage/zipfiles.py:27",
+      "strax/strax/storage/zipfiles.py:84"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 57.694457865s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-3.6-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '57s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q027",
+    "question": "I get a DataNotAvailable error when loading peaks, why am I getting this error?",
+    "category": "error",
+    "expect": "This is the most likely cause of this error, but there are other possible causes. There is a high chance this is not caught as there is no data to reflect the likelyhood of this error. A refusal without further info is also acceptable.",
+    "gold_files": [
+      "straxen/straxen/plugins/peaks/peaks_vanilla.py",
+      "strax/strax/storage/common.py"
+    ],
+    "retrieved": [
+      "strax/strax/storage/common.py:101",
+      "xedocs/xedocs/schemas/corrections/implementations/peak_reconstruction_bias.py:15",
+      "straxen/straxen/plugins/peaks/peak_positions_cnf_peakonly.py:62",
+      "strax/strax/dtypes.py:166",
+      "straxen/straxen/common.py:349",
+      "straxen/straxen/plugins/peaklets/peaklets.py:51",
+      "strax/strax/testutils.py:188",
+      "straxen/straxen/plugins/peaks/peak_proximity.py:32"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 42.365662288s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '42s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q028",
+    "question": "What causes 'Cannot patch {k}: not in registry'? error?",
+    "category": "error",
+    "expect": "The function run_strax triggers it if a given class was called that was not registered.",
+    "gold_files": [
+      "straxen/straxen/scripts/bootstrax.py"
+    ],
+    "retrieved": [
+      "xedocs/xedocs/schemas/plugin_lineages.py:41",
+      "straxen/straxen/misc.py:129",
+      "strax/strax/storage/common.py:41",
+      "xedocs/xedocs/schemas/plugin_lineages.py:8",
+      "straxen/straxen/scripts/ajax.py:450",
+      "xedocs/xedocs/schemas/plugin_lineages.py:22",
+      "strax/strax/context.py:430",
+      "straxen/straxen/scripts/bootstrax.py:2105"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 27.063294917s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '27s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q029",
+    "question": "How do I write my own plugin that depends on events?",
+    "category": "abstract",
+    "expect": "",
+    "gold_files": [
+      "strax/docs/source/advanced/plugin_dev.rst"
+    ],
+    "retrieved": [
+      "straxen/straxen/plugins/events/event_area_per_channel.py:9",
+      "straxen/straxen/plugins/events/event_info.py:22",
+      "straxen/straxen/plugins/events/event_info.py:9",
+      "straxen/straxen/plugins/events/event_positions.py:55",
+      "straxen/straxen/plugins/events/event_basics_vanilla.py:65",
+      "straxen/straxen/plugins/events/event_ambience.py:19",
+      "straxen/straxen/plugins/events/event_position_uncertainty.py:137",
+      "straxen/straxen/plugins/events_mv/events_mv.py:10"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 11.781939956s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '11s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q030",
+    "question": "What methods do I have to implement when subclassing strax.Plugin?",
+    "category": "abstract",
+    "expect": "compute is the only function that needs to be implemented. It is the only method in an 'abstract' from as it just raises a not implemented error.",
+    "gold_files": [
+      "strax/strax/plugins/plugin.py"
+    ],
+    "retrieved": [
+      "strax/strax/context.py:330",
+      "strax/strax/plugins/plugin.py:284",
+      "strax/docs/source/advanced/plugin_dev.rst:181",
+      "strax/strax/plugins/plugin.py:49",
+      "straxen/straxen/plugins/events/event_basics_vanilla.py:443",
+      "strax/strax/plugins/plugin.py:723",
+      "strax/strax/plugins/plugin.py:363",
+      "strax/strax/plugins/parrallel_source_plugin.py:20"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 56.45377687s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '56s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q031",
+    "question": "What is the difference between straxen and strax?",
+    "category": "identifier",
+    "expect": "Strax is a general framework for pulse singal processing, while straxen is the XENONnT spesific implementation of this processing.",
+    "gold_files": [
+      "strax/README.md",
+      "straxen/README.md"
+    ],
+    "retrieved": [
+      "strax/docs/source/index.rst:2",
+      "straxen/docs/source/index.rst:2",
+      "straxen/docs/source/scripts.rst:9",
+      "straxen/docs/source/scripts.rst:29",
+      "strax/strax/plugins/plugin.py:1",
+      "straxen/notebooks/tutorials/strax_demo.ipynb:8",
+      "strax/docs/source/developer/storage.rst:20",
+      "straxen/docs/source/scripts.rst:183"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 41.175695912s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '41s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q032",
+    "question": "How do I use DataSelectionHist?",
+    "category": "deprecation",
+    "expect": "This class is depreciated and no longer available.",
+    "gold_files": [
+      "straxen/straxen/analyses/bokeh_waveform_plot.py"
+    ],
+    "retrieved": [
+      "straxen/straxen/analyses/bokeh_waveform_plot.py:1126",
+      "straxen/straxen/analyses/bokeh_waveform_plot.py:986",
+      "straxen/straxen/analyses/bokeh_waveform_plot.py:989",
+      "straxen/straxen/analyses/bokeh_waveform_plot.py:1138",
+      "rframe/rframe/interfaces/tinydb.py:47",
+      "rframe/rframe/interfaces/tinydb.py:46",
+      "rframe/rframe/interfaces/tinydb.py:59",
+      "straxen/notebooks/tutorials/EventDisplayInteractive.ipynb:59"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 25.914786512s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '25s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q033",
+    "question": "What is the difference between peaks and peaklets?",
+    "category": "identifier",
+    "expect": "Peaklets are the result of using the peak splitting algorithm in the time integrated wavefrom signals. We generate peaks by taking the peaklets classified as S2s and merging them when appropriate. S1s do not change.",
+    "gold_files": [
+      "straxen/straxen/plugins/peaks/peaks_vanilla.py",
+      "straxen/straxen/plugins/peaklets/peaklets.py"
+    ],
+    "retrieved": [
+      "straxen/straxen/plugins/peaklets/peaklets.py:15",
+      "straxen/straxen/plugins/peaklets/peaklets.py:216",
+      "straxen/straxen/plugins/peaklets/peaklets.py:479",
+      "straxen/straxen/plugins/peaklets/peaklets.py:424",
+      "straxen/straxen/plugins/peaklets/peaklets.py:94",
+      "straxen/straxen/plugins/peaklets/peaklets.py:125",
+      "straxen/straxen/plugins/peaklets/peaklets.py:400",
+      "straxen/straxen/plugins/peaklets/peaklets.py:51"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 10.589357639s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '10s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q034",
+    "question": "When should I use a LoopPlugin instead of a regular Plugin?",
+    "category": "identifier",
+    "expect": "Need a loop plugin when you need to find where data kind x for example appears in data kind y as it needs to loop over data kind x to find the desired results.",
+    "gold_files": [
+      "strax/strax/plugins/loop_plugin.py"
+    ],
+    "retrieved": [
+      "strax/strax/plugins/loop_plugin.py:11",
+      "strax/strax/plugins/loop_plugin.py:121",
+      "strax/strax/plugins/loop_plugin.py:24",
+      "strax/docs/source/advanced/plugin_dev.rst:28",
+      "strax/docs/source/advanced/plugin_dev.rst:120",
+      "strax/strax/plugins/down_chunking_plugin.py:34",
+      "strax/strax/plugins/exhaust_plugin.py:7",
+      "strax/docs/source/advanced/plugin_dev.rst:28"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 55.29756361s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-3.6-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '55s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q035",
+    "question": "What does s2_min_pmts control?",
+    "category": "configuration",
+    "expect": "Establishes the minimum number of PMTs that need to contribute to a signal for it to be considered an S2.",
+    "gold_files": [
+      "straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py"
+    ],
+    "retrieved": [
+      "straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py:56",
+      "straxen/notebooks/tutorials/strax_demo.ipynb:45",
+      "straxen/straxen/plugins/peaklets/peaklets.py:63",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s_vanilla.py:77",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s_vanilla.py:75",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:55",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:53",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:159"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 39.973546489s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '39s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q036",
+    "question": "What's the default value of s1_min_coincidence?",
+    "category": "configuration",
+    "expect": "This is just a number retrival, answer should be 2.",
+    "gold_files": [
+      "straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py"
+    ],
+    "retrieved": [
+      "straxen/straxen/plugins/events/events.py:95",
+      "straxen/straxen/plugins/events/events.py:86",
+      "straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py:52",
+      "straxen/straxen/plugins/events/event_basics_vanilla.py:50",
+      "straxen/straxen/plugins/raw_records_coin_nv/nveto_recorder.py:458",
+      "straxen/notebooks/tutorials/strax_demo.ipynb:45",
+      "straxen/straxen/plugins/raw_records_coin_nv/nveto_recorder.py:458",
+      "straxen/straxen/plugins/raw_records_coin_nv/nveto_recorder.py:424"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 24.591490146s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '24s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q037",
+    "question": "How do I cut a new strax release?",
+    "category": "process",
+    "expect": "Update personal fork & local master to Axfoundation fork Edit and commit HISTORY.md bumpversion patch (or minor/major, as appropriate) Push to personal and AxFoundation fork, with --tags fast-foward and push AxFoundation/stable Add release info on release page of github website",
+    "gold_files": [
+      "strax/docs/source/developer/release.rst"
+    ],
+    "retrieved": [
+      "strax/docs/source/developer/release.rst:1",
+      "strax/strax/plugins/cut_plugin.py:16",
+      "strax/strax/processing/data_reduction.py:83",
+      "strax/strax/plugins/cut_plugin.py:98",
+      "strax/strax/processing/data_reduction.py:51",
+      "strax/strax/plugins/cut_plugin.py:66",
+      "straxen/straxen/scripts/straxer.py:124",
+      "straxen/straxen/plugins/online_peak_monitor/online_peak_monitor.py:42"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 9.320314352s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-3.6-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '9s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q038",
+    "question": "How do I cut a new release of straxen?",
+    "category": "refusal",
+    "expect": "Model should refuse to answer as the data for this is not available.",
+    "gold_files": [],
+    "retrieved": [
+      "strax/docs/source/developer/release.rst:1",
+      "strax/strax/plugins/cut_plugin.py:98",
+      "straxen/straxen/plugins/online_peak_monitor/online_peak_monitor.py:69",
+      "strax/strax/processing/data_reduction.py:83",
+      "strax/strax/plugins/cut_plugin.py:16",
+      "straxen/straxen/plugins/online_peak_monitor/online_peak_monitor.py:42",
+      "strax/strax/plugins/cut_plugin.py:66",
+      "straxen/straxen/scripts/straxer.py:124"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 54.034764683s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '54s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q039",
+    "question": "How do I cut a new release?",
+    "category": "process",
+    "expect": "",
+    "gold_files": [
+      "strax/docs/source/developer/release.rst",
+      "xedocs/tasks.py",
+      "rframe/tasks.py"
+    ],
+    "retrieved": [
+      "rframe/tasks.py:172",
+      "xedocs/tasks.py:172",
+      "strax/strax/processing/data_reduction.py:51",
+      "strax/strax/processing/data_reduction.py:31",
+      "strax/docs/source/developer/release.rst:1",
+      "strax/strax/processing/data_reduction.py:83",
+      "strax/strax/plugins/cut_plugin.py:98",
+      "extra_docs/corrections/README.md:86"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 38.732262232s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '38s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q040",
+    "question": "What is an rframe schema?",
+    "category": "identifier",
+    "expect": "A schema is a python class that inherits from rframe.BaseSchema and its used to define and query structured data.",
+    "gold_files": [
+      "rframe/rframe/schema.py",
+      "xedocs/docs/advanced_usage.rst"
+    ],
+    "retrieved": [
+      "rframe/rframe/schema.py:182",
+      "xedocs/docs/advanced_usage.rst:5",
+      "rframe/rframe/rframe.py:31",
+      "rframe/rframe/data_accessor.py:28",
+      "rframe/rframe/rframe.py:68",
+      "rframe/rframe/rest_server.py:35",
+      "rframe/rframe/utils.py:82",
+      "rframe/rframe/rest_server.py:453"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 23.365459303s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '23s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q041",
+    "question": "How does xedocs use rframe's indexing?",
+    "category": "identifier",
+    "expect": "rframe indecies are extensively used though most classes in xedocs requiring at least a time index. Other indecies can be added to fetch data as necessary. A few examples of how they are used is expected",
+    "gold_files": [
+      "rframe/rframe/indexes/",
+      "xedocs/xedocs/schemas/base_schemas.py",
+      "xedocs/xedocs/schemas/pmt_data/pmts.py",
+      "xedocs/xedocs/schemas/context_config.py",
+      "xedocs/notebooks/Defining_Schemas.ipynb",
+      "xedocs/xedocs/schemas/corrections/implementations/"
+    ],
+    "retrieved": [
+      "xedocs/docs/from_cmt.rst:1",
+      "xedocs/docs/from_cmt.rst:1",
+      "xedocs/notebooks/Accessing_and_inserting_data.ipynb:6",
+      "xedocs/docs/index.rst:1",
+      "xedocs/notebooks/Defining_Schemas.ipynb:10",
+      "xedocs/README.rst:2",
+      "xedocs/docs/web-playground.ipynb:9",
+      "xedocs/xedocs/schemas/base_schemas.py:73"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 8.094872316s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '8s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q042",
+    "question": "How do I load a tensorflow model in straxen?",
+    "category": "process",
+    "expect": "When writing the URLConfig include the tf name in the first section of the url.",
+    "gold_files": [
+      "straxen/straxen/config/protocols.py",
+      "straxen/straxen/config/url_config.py"
+    ],
+    "retrieved": [
+      "straxen/docs/source/url_configs.rst:25",
+      "straxen/straxen/config/protocols.py:95",
+      "straxen/straxen/config/protocols.py:95",
+      "straxen/docs/source/url_configs.rst:116",
+      "straxen/straxen/config/protocols.py:95",
+      "straxen/straxen/plugins/events/event_pattern_fit.py:208",
+      "straxen/straxen/plugins/peaks/peak_s1_positions_cnn.py:17",
+      "straxen/docs/source/url_configs.rst:25"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 52.765404285s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '52s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q043",
+    "question": "What do I need to implement to write my own rframe schema?",
+    "category": "abstract",
+    "expect": "Import from BaseSchema and fill out the abstract methods that are required.",
+    "gold_files": [
+      "rframe/rframe/schema.py"
+    ],
+    "retrieved": [
+      "rframe/rframe/schema.py:182",
+      "rframe/rframe/rframe.py:31",
+      "rframe/rframe/utils.py:82",
+      "rframe/rframe/schema.py:47",
+      "xedocs/docs/advanced_usage.rst:5",
+      "rframe/rframe/rest_server.py:35",
+      "rframe/rframe/data_accessor.py:28",
+      "rframe/rframe/schema.py:36"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 37.377036474s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '37s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q044",
+    "question": "What do I need to implement to write my own rframe schema?",
+    "category": "abstract",
+    "expect": "index_names, column_names, rframe, insert, delete, initdb",
+    "gold_files": [
+      "rframe/rframe/data_accessor.py"
+    ],
+    "retrieved": [
+      "rframe/rframe/schema.py:182",
+      "rframe/rframe/rframe.py:31",
+      "rframe/rframe/utils.py:82",
+      "rframe/rframe/schema.py:47",
+      "xedocs/docs/advanced_usage.rst:5",
+      "rframe/rframe/rest_server.py:35",
+      "rframe/rframe/data_accessor.py:28",
+      "rframe/rframe/schema.py:36"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 21.962227392s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-3.6-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '21s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q045",
+    "question": "I got a runtime error 'Model files blah.something is not found', what is causing this?",
+    "category": "error",
+    "expect": "Error saying the model could not be found be found.",
+    "gold_files": [
+      "straxen/docs/source/url_configs.rst"
+    ],
+    "retrieved": [
+      "straxen/docs/source/url_configs.rst:25",
+      "rframe/rframe/schema.py:260",
+      "rframe/rframe/schema.py:317",
+      "rframe/rframe/schema.py:60",
+      "rframe/rframe/schema.py:281",
+      "straxen/straxen/storage/rundb.py:172",
+      "rframe/rframe/schema.py:40",
+      "rframe/rframe/schema.py:36"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 6.617500326s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-3.6-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '6s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q046",
+    "question": "I tried to load some cmt data and got an error, why?",
+    "category": "error",
+    "expect": "Error saying cmt is no longer supported",
+    "gold_files": [
+      "straxen/straxen/config/config_tests.py"
+    ],
+    "retrieved": [
+      "xedocs/xedocs/schemas/pmt_data/pmts.py:6",
+      "xedocs/docs/from_cmt.rst:1",
+      "strax/strax/storage/common.py:113",
+      "straxen/straxen/holoviews_utils.py:281",
+      "straxen/straxen/scripts/microstrax.py:50",
+      "straxen/straxen/scripts/microstrax.py:50",
+      "strax/strax/storage/common.py:485",
+      "strax/strax/storage/common.py:122"
+    ],
+    "answer": "<<ERROR: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.6-flash\\nPlease retry in 51.250230261s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.6-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '51s'}]}}>>",
+    "retriever": "dense",
+    "backend": "gemini-3.6-flash"
+  }
+]

@@ -48,8 +48,9 @@ Rules:
    function names, arguments, or behaviour -- a confident wrong answer is
    worse than no answer here, because the user will run it.
 
-3. Cite the source for every specific claim, as [repo/path.py:LINE], using the
-   line number given in the excerpt header.
+3. Cite the source for every specific claim by copying the bracketed string
+   from that excerpt's "Source:" line, exactly as written. Do not renumber
+   them, abbreviate them, or invent a shorter form.
 
 4. If an excerpt is marked:
      - abstract    it is an interface the user is expected to implement in a
@@ -67,30 +68,54 @@ Rules:
    of them and explain how they relate, rather than describing only the
    highest-ranked one. Say which is the default where the excerpts make that
    clear.
+
+7. Answer the question that was asked. "How does X work" needs the actual
+   mechanism -- the steps, the conditions, the thresholds that decide the
+   outcome -- not just a list of the possible outputs. "What is X" needs a
+   definition. "How do I do X" needs the procedure.
    
-7. Be concise. The reader is a working scientist who wants the answer, not an
+8. Be concise. The reader is a working scientist who wants the answer, not an
    essay. Do not quote long stretches of code; quote the few lines that matter
    and describe the rest."""
 
 
-def permalink(chunk: dict) -> str:
-    """A GitHub link to the exact lines this chunk came from.
-
+FORMAT_REMINDER = """# Required format
+ 
+Every specific claim ends with the bracketed source it came from, copied
+character for character from that excerpt's "Source:" line. For example:
+ 
+    Peaklets are classified as S1 when the rise time falls below the area
+    boundary [straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py:73].
+    The minimum coincidence defaults to 2 [straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py:31].
+ 
+An answer with no bracketed sources is not acceptable. If you cannot point to
+an excerpt for a claim, do not make the claim."""
+ 
+ 
+def permalink(chunk: dict) -> str | None:
+    """A GitHub link to the exact lines this chunk came from, or None.
+ 
     Uses the commit recorded at index time, so the link keeps pointing at the
     code that was actually indexed even after the branch moves on.
+ 
+    Returns None for internal sources and for repositories with no entry in
+    ORG. Guessing a URL for a private repo produces a link that 404s for
+    everyone outside the collaboration, which is worse than no link.
     """
-    org = ORG.get(chunk["repo"], "XENONnT")
+    if chunk.get("visibility") == "internal":
+        return None
+    org = ORG.get(chunk["repo"])
     if org is None:
         return None
     return (f"https://github.com/{org}/{chunk['repo']}/blob/{chunk['commit']}/"
             f"{chunk['path']}#L{chunk['start_line']}-L{chunk['end_line']}")
-
-
+ 
+ 
 def select_context(chunks: list[dict],
                    budget: int = CONTEXT_BUDGET_CHARS,
                    max_chunk: int = MAX_CHUNK_CHARS) -> list[dict]:
     """Choose how much of each chunk to show, in retrieval-rank order.
-
+ 
     Returns copies with a `_body` field holding the text to put in the prompt.
     Top-ranked chunks get their full context; once the budget runs low, the
     rest fall back to the short embedded form.
@@ -100,7 +125,7 @@ def select_context(chunks: list[dict],
         full = c.get("context_text") or c["text"]
         if len(full) > max_chunk:
             full = full[:max_chunk] + "\n# ... truncated ..."
-
+ 
         if used + len(full) <= budget:
             body = full
         else:
@@ -108,22 +133,33 @@ def select_context(chunks: list[dict],
         out.append({**c, "_body": body})
         used += len(body)
     return out
-
-
+ 
+ 
 def format_excerpt(chunk: dict, n: int) -> str:
-    """One numbered excerpt, with enough header for the model to cite it."""
+    """One excerpt, headed by the exact string the model should cite.
+ 
+    An earlier version headed excerpts "[1] repo/path.py:15-40" and asked for
+    citations of the form [repo/path.py:LINE]. Models merged the two and
+    emitted "[1/repo/path.py:15-40]" -- they were complying, with an ambiguous
+    template. The header is now literally the citation, so copying it verbatim
+    is the correct behaviour and there is nothing to reconstruct.
+    """
     flags = []
     if chunk.get("status"):
         flags.append(chunk["status"])
     if chunk.get("public_api"):
         flags.append("public API")
     tag = f"  [{', '.join(flags)}]" if flags else ""
-
-    header = (f"[{n}] {chunk['repo']}/{chunk['path']}:"
-              f"{chunk['start_line']}-{chunk['end_line']}{tag}")
-    return f"{header}\n{chunk.get('_body', chunk['text'])}"
-
-
+ 
+    if chunk.get("visibility") == "internal":
+        flags.append("internal doc")
+ 
+    tag = f"  ({', '.join(flags)})" if flags else ""
+    cite = (f"[{chunk['repo']}/{chunk['path']}:"
+            f"{chunk['start_line']}-{chunk['end_line']}]")
+    return f"Source: {cite}{tag}\n{chunk.get('_body', chunk['text'])}"
+ 
+ 
 def build_prompt(question: str, chunks: list[dict],
                  budget: int = CONTEXT_BUDGET_CHARS) -> str:
     """Assemble the full prompt sent to the model."""
@@ -135,10 +171,11 @@ def build_prompt(question: str, chunks: list[dict],
         f"{SYSTEM}\n\n"
         f"# Excerpts\n\n{excerpts}\n\n"
         f"# Question\n\n{question}\n\n"
+        f"{FORMAT_REMINDER}\n\n"
         f"# Answer\n"
     )
-
-
+ 
+ 
 def estimate_tokens(text: str) -> int:
     """Rough token count. Good enough for checking a prompt fits a window."""
     return len(text) // 4

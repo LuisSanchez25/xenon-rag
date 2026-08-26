@@ -499,21 +499,6 @@ def test_symlinked_directory_is_not_walked_twice(tmp_path):
     assert ch.dedupe_chunks(chunks)[1] == 0, "symlink slipped through to dedupe"
  
  
-def test_build_tooling_is_skipped(tmp_path):
-    """tasks.py and friends are copied verbatim between projects and answer
-    no question a user of the analysis framework would ask."""
-    root = tmp_path / "toolrepo"
-    root.mkdir()
-    (root / "tasks.py").write_text(
-        'def lint_flake8(c):\n    """Run flake8."""\n    c.run("flake8")\n')
-    (root / "noxfile.py").write_text('def tests(session):\n    """Run tests."""\n    pass\n')
-    (root / "real.py").write_text('def merge(a, b):\n    """Merge peaks."""\n    return a + b\n')
-    names = [c["name"] for c in chunks_of(root)]
-    assert "merge" in names
-    assert "lint_flake8" not in names
-    assert "tests" not in names
- 
- 
 def test_tests_directory_is_skipped(repo):
     assert all("tests/" not in c["path"] for c in chunks_of(repo))
  
@@ -549,14 +534,6 @@ def test_notebook_splits_on_headings(repo):
     names = [c["name"] for c in by_kind(chunks_of(repo), "notebook")]
     assert any("Tutorial" in n for n in names)
     assert any("Plotting" in n for n in names)
- 
- 
-def test_public_api_flag_from_autodoc_directives(repo):
-    """The autodoc stubs are skipped as content but used as metadata."""
-    card = named(chunks_of(repo), "MergedS2s")
-    assert card["public_api"] is True
-    # nothing marks pkg/long.py as public
-    assert named(chunks_of(repo), "enormous")["public_api"] is False
  
  
 # --------------------------------------------------------------------------

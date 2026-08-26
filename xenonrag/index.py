@@ -138,7 +138,7 @@ class VectorIndex:
 
         return cls(index, chunks, manifest)
 
-    def search(self, query_vector: np.ndarray, k: int = 8) -> list[dict]:
+    def search(self, query_vector: np.ndarray, k: int = 10) -> list[dict]:
         """Return the k most similar chunks, each with a `score`.
 
         Scores are cosine similarities in [-1, 1]; higher is more similar. In

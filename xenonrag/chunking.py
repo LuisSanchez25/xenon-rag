@@ -478,23 +478,19 @@ def chunk_python(path: Path, repo: str, commit: str, root: Path,
             ))
  
             _, configs = _split_class_body(node)
-            if configs:
-                segs = [ast.get_source_segment(src, n) for n in configs]
-                full = "\n\n".join(s for s in segs if s)
+            for n in configs:
+                seg = ast.get_source_segment(src, n)
+                if not seg:
+                    continue
+                name = _target_name(n)
                 header = (f"File: {rel}\nClass: {node.name}\n"
-                          f"Configuration options\n\n")
-                pieces = _split_long(full, EMBED_MAX_CHARS, OVERLAP_CHARS)
-                for i, piece in enumerate(pieces):
-                    suffix = "" if i == 0 else f" (part {i + 1})"
-                    chunks.append(_mk(
-                        header + piece,
-                        context_text=(header + full) if len(pieces) > 1 else None,
-                        repo=repo, path=rel, commit=commit,
-                        start_line=node.lineno,
-                        end_line=_end_line(node, node.lineno),
-                        kind="class_config",
-                        name=f"{node.name} config{suffix}", public_api=public,
-                    ))
+                          f"Configuration option: {name}\n\n")
+                chunks.append(_mk(header + seg, repo=repo, path=rel,
+                                  commit=commit, start_line=n.lineno,
+                                  end_line=_end_line(n, n.lineno),
+                                  kind="class_config",
+                                  name=f"{node.name}.{name}",
+                                  public_api=public))
  
             for m in node.body:
                 if not isinstance(m, (ast.FunctionDef, ast.AsyncFunctionDef)):
@@ -570,18 +566,30 @@ def chunk_prose(path: Path, repo: str, commit: str, root: Path) -> list[dict]:
     rel = str(path.relative_to(root))
     title = Path(rel).stem.replace("_", " ").replace("-", " ")
     is_rst = path.suffix == ".rst"
-
+ 
     chunks: list[dict] = []
+ 
+    # A short document is one idea. Splitting it on every heading turns, say, a
+    # 500-byte pull-request template into four context-free fragments, each too
+    # thin to retrieve well. If the whole file fits in a chunk, keep it whole.
+    stripped = text.strip()
+    if MIN_CHUNK_CHARS <= len(stripped) <= PROSE_MAX_CHARS \
+            and not _is_autodoc_stub(stripped):
+        header = f"File: {rel}\n{repo} docs > {title}\n\n"
+        return [_mk(header + stripped, repo=repo, path=rel, commit=commit,
+                    start_line=1, end_line=len(text.splitlines()),
+                    kind="prose", name=title)]
+ 
     for heading, start_line, body in _sections(text.splitlines(), is_rst):
         body_text = "\n".join(body).strip()
         if len(body_text) < MIN_CHUNK_CHARS or _is_autodoc_stub(body_text):
             continue
-
+ 
         breadcrumb = f"{repo} docs > {title}"
         if heading:
             breadcrumb += f" > {heading}"
         header = f"File: {rel}\n{breadcrumb}\n\n"
-
+ 
         for i, piece in enumerate(
             _split_long(body_text, PROSE_MAX_CHARS, PROSE_OVERLAP_CHARS)
         ):

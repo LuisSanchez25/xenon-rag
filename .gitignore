@@ -43,3 +43,6 @@ models/
 
 # Files that should not be uploaded to a public repo
 extra_docs/
+
+# Logs from web UI
+logs/

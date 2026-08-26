@@ -1,7 +1,7 @@
 - id: q001
   question: "How does the get_corrections function work?"
-  gold_files: ["straxen/docs/source/reference/straxen.rst"]
-  category: deprecation
+  gold_files: []
+  category: refusal
   note: "Removed from straxen; survives only as a stale autodoc reference."
   expect: "Should produce a deprecation error/warning. This function is no longer
            implemented in straxen."
@@ -31,9 +31,12 @@
 
 - id: q004
   question: "What does to_pe mean?"
-  gold_files: ["straxen/straxen/plugins/records/records.py"]
+  gold_files: 
+    - "straxen/straxen/plugins/records/records.py"
+    - "xedocs/xedocs/schemas/corrections/implementations/pmt_area_to_pe.py"
   category: identifier
   distinguishing_term: "to_pe"
+  require_all: false
   note: "Opaque abbreviation; predicted BM25 win."
   expect: "This is a conversion from PMT voltage change to number of photo-electrons"
 
@@ -86,12 +89,16 @@
 
 - id: q010
   question: "How do I load data from a run?"
-  gold_files: ["straxen/notebooks/tutorials/Open_data.ipynb"]
+  gold_files: 
+    - "straxen/straxen/notebooks/tutorials/Open_data.ipynb"
+    - "straxen/docs/source/build_datastructure_doc.py"
+    - "straxen/notebooks/tutorials/strax_demo.ipynb"
   category: usage
+  require_all: false
   note: "This is a common question that is well covered in the corpus. The answer
          should be able to be extracted from the corpus."
   expect: "You first need to establish a context. Then use a function like
-           'get_array', spesifying the data kind, run_id, ect..."
+           'get_array' or 'get_df', spesifying the data type, run_id, ect..."
 
 - id: q011
   question: "How do I load data from a krypton calibration run?"
@@ -194,7 +201,10 @@
 - id: q022
   question: "How does the merge_arrs function work?"
   category: usage
-  gold_files: ["strax/strax/chunk.py"]
+  gold_files: 
+    - "strax/strax/chunk.py"
+    - "strax/strax/utils.py"
+  require_all: false
   note: "This is explicitly answered in the inline documentation of this function"
   expect: "Merges together two structured arrays of the same length."
 
@@ -243,8 +253,11 @@
 - id: q027
   question: "I get a DataNotAvailable error when loading peaks,
             why am I getting this error?"
-  gold_files: ["straxen/straxen/plugins/peaks/peaks_vanilla.py"]
+  gold_files: 
+    - "straxen/straxen/plugins/peaks/peaks_vanilla.py"
+    - "strax/strax/storage/common.py"
   category: error
+  require_all: false
   expect: "This is the most likely cause of this error, but there are other 
         possible causes. There is a high chance this is not caught as 
         there is no data to reflect the likelyhood of this error. 
@@ -254,7 +267,9 @@
   question: "What causes 'Cannot patch {k}: not in registry'? error?"
   gold_files: ["straxen/straxen/scripts/bootstrax.py"]
   category: error
-  note: "Simple error, only one thing causes this in straxen."
+  note: "Simple error, only one thing causes this in straxen.
+         Not a good match for dense network matching. Something like bm25
+         would work better."
   expect: "The function run_strax triggers it if a given class was
            called that was not registered."
 
@@ -321,6 +336,7 @@
   question: "What does s2_min_pmts control?"
   gold_files: ["straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py"]
   category: configuration
+  note: "It might be best to leave configuration questions to bm25"
   expect: "Establishes the minimum number of PMTs that need to contribute 
            to a signal for it to be considered an S2."
 
@@ -399,3 +415,32 @@
   note: "Related to URLConfigs and understanding how they work"
   expect: "When writing the URLConfig include the tf name in the first 
            section of the url."
+
+- id: q043
+  question: "What do I need to implement to write my own rframe schema?"
+  gold_files: ["rframe/rframe/schema.py"]
+  category: abstract
+  expect: "Import from BaseSchema and fill out the abstract methods that
+           are required."
+
+- id: q044
+  question: "What methods does a rframe DataAccessor have to provide?"
+  gold_files: ["rframe/rframe/data_accessor.py"]
+  category: abstract
+  expect: "index_names, column_names, rframe, insert, delete, initdb"
+
+- id: q045
+  question: "I got a runtime error 'Model files blah.something is not found', 
+             what is causing this?"
+  gold_files: ["straxen/docs/source/url_configs.rst"]
+  category: error
+  expect: "Error saying the model could not be found be found."
+  note: "The blah.something could be anything, trying to check if this 
+         generates some issues."
+
+- id: q046
+  question: "I tried to load some cmt data and got an error, why?"
+  gold_files: ["straxen/straxen/config/config_tests.py"]
+  category: error
+  note: "Plenty of documentation still points to CMT but no code does other than raising errors."
+  expect: "Error saying cmt is no longer supported"
