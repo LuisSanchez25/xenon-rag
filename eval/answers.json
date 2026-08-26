@@ -1,0 +1,1019 @@
+[
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q001",
+    "question": "How does the get_corrections function work?",
+    "category": "refusal",
+    "expect": "Should produce a deprecation error/warning. This function is no longer implemented in straxen.",
+    "gold_files": [],
+    "retrieved": [
+      "strax/docs/source/developer/corrections.rst:4",
+      "xedocs/xedocs/databases.py:21",
+      "strax/strax/context.py:1912",
+      "xedocs/docs/corrections.rst:44",
+      "extra_docs/corrections/README.md:28",
+      "xedocs/xedocs/schemas/corrections/base_corrections.py:75",
+      "xedocs/xedocs/schemas/corrections/base_references.py:38",
+      "xedocs/xedocs/schemas/corrections/base_references.py:58"
+    ],
+    "answer": "The `get_corrections` function is not explicitly defined in the provided excerpts. The closest relevant function mentioned is `accumulate`, which is used to accumulate data from chunks of a run and apply functions to it [Source: strax/strax/context.py:1912-2015].\n\nTo get corrections, you would typically use the `CorrectionReference` class to find and load the referenced documents. Here\u2019s how you can do it:\n\n```python\nimport xedocs\n\n# Find a correction reference\nref = xedocs.CorrectionReference.find_one(correction='pmt_gains', version=..., time=...)\n\n# Load the corrections being referenced\npmt_gains = ref.load()\n```\n\nThis code snippet demonstrates how to find a `CorrectionReference` for a specific correction (e.g., 'pmt_gains') and then load the actual correction documents using the `load` method [Source: xedocs/docs/corrections.rst:44-64].\n\nIf you need to set or modify correction values, you would typically create new documents that conform to the schema defined in [xedocs](https://github.com/XENONnT/xedocs/tree/master/xedocs/schemas/corrections) and insert them into the database. This process involves creating a new branch in your corrections repository, making changes according to the schema, and then committing those changes [Source: extra_docs/corrections/README.md:28-41].",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q002",
+    "question": "How do I add a new correction value to be used for processing?",
+    "category": "usage",
+    "expect": "Load the schema using xedocs, fill in the required index fields, convert the data into a json and save the file in the corrections repo under [schema_name]/data/[version...].json",
+    "gold_files": [
+      "xedocs/xedocs/schemas/corrections/base_corrections.py",
+      "corrections/README.md"
+    ],
+    "retrieved": [
+      "extra_docs/corrections/README.md:28",
+      "extra_docs/corrections/README.md:12",
+      "extra_docs/corrections/README.md:86",
+      "extra_docs/corrections/README.md:86",
+      "xedocs/xedocs/schemas/corrections/base_corrections.py:275",
+      "xedocs/xedocs/schemas/corrections/base_references.py:38",
+      "xedocs/xedocs/schemas/corrections/base_references.py:49",
+      "xedocs/xedocs/schemas/corrections/base_corrections.py:215"
+    ],
+    "answer": "To add a new correction value to be used for processing, follow these steps:\n\n1. **Create a new branch in the corrections repository**:\n   - This ensures that your changes are isolated and can be reviewed before being merged.\n   \n2. **Define the time dependence of the correction**:\n   - Create a new folder within the corrections repository for your correction.\n   - Include all necessary scripts and input files used to calculate the correction.\n   - Ensure you have a \"data\" subfolder containing JSON files with values for different versions and time periods.\n\n3. **Create a schema for the correction**:\n   - Before inserting new corrections into the database, add a schema definition in [xedocs](https://github.com/XENONnT/xedocs/tree/master/xedocs/schemas/corrections).\n   - Create a new branch in the xedocs repository and open a pull request (PR) for review.\n\n4. **Document the correction information**:\n   - Ensure all relevant details about your correction are documented properly.\n   - This includes any parameters, versioning rules, and any dependencies on other corrections.\n\n5. **Insert the correction into the database**:\n   - Use the `pre_insert` method from the `TimeSampledCorrection` class to ensure that new ONLINE versions do not affect past data by inserting a document with current values.\n   - The `freeze_values` method can be used to set all future values to those of the latest existing document.\n\n6. **Upload any data files**:\n   - If your correction requires additional data, upload these files as part of your PR in xedocs.\n\n7. **Notify team leaders and ACs**:\n   - Present your note at the [team BC](https://xe1t-wiki.lngs.infn.it/doku.php?id=xenon:xenonnt:analysis:signals_and_detector) group meeting.\n   - Ensure that all stakeholders are aware of the changes and have a chance to review them.\n\n8. **Finalize Python codes**:\n   - Make sure your Python code is finalized in the [nton repository](https://github.com/XENONnT/nton/tree/master/nton/analyses/corrections).\n\nBy following these steps, you can add new correction values that will be used for processing in your analysis.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q003",
+    "question": "How do I add a new correction for processing?",
+    "category": "process",
+    "expect": "Finilize code used to generate the correction, present the results in team BC meeting, upload data files (if any), create a new xedocs schema, define time depedance, make a new branch and insert the corrections as a json file, finally document the necessary information.",
+    "gold_files": [
+      "corrections/README.md"
+    ],
+    "retrieved": [
+      "extra_docs/corrections/README.md:28",
+      "extra_docs/corrections/README.md:86",
+      "extra_docs/corrections/README.md:86",
+      "extra_docs/corrections/README.md:86",
+      "extra_docs/corrections/README.md:86",
+      "extra_docs/corrections/README.md:12",
+      "straxen/straxen/plugins/events/corrected_areas.py:199",
+      "straxen/straxen/plugins/events/corrected_areas.py:76"
+    ],
+    "answer": "To add a new correction for processing, follow these steps:\n\n1. **Create a schema for the correction**: Before inserting the correction into the database, define a schema in [xedocs](https://github.com/XENONnT/xedocs/tree/master/xedocs/schemas/corrections). Create a new branch in the xedocs repository and open a pull request to have it reviewed by maintainers.\n\n2. **Define the time dependence of the correction**: In your corrections repository, create a new folder for the correction containing all necessary scripts and inputs used to calculate it. Make sure to include a \"data\" subfolder with JSON files that specify the versions and time periods for the correction.\n\n3. **Document the correction information**: Start a pull request in the [XENONnT corrections repository](https://github.com/XENONnT/corrections/tree/master). Tag [TeamBC leaders] to assign a reviewer. Document the valid time range of the correction, link to your xedocs pull request, and provide a working example using Jupyter notebooks if possible. Test your correction using Xedocs data.\n\n4. **Upload any data files**: If the correction involves numerical values, strings, or arrays, you can skip this step. Otherwise, upload any necessary data files to the [Private XENONnT auxiliary files repository](https://github.com/XENONnT/private_nt_aux_files/tree/master). Tag [TeamBC leaders] as reviewers and document the changes made in the README.\n\n5. **Finalize the Python codes**: Ensure that your correction code is finalized in the [nton repository](https://github.com/XENONnT/nton/tree/master/nton/analyses/corrections).\n\n6. **Present the note to the team BC group meeting**: Share your correction with the [team BC] group for review and approval.\n\n7. **Let people thank you**: Once your correction is approved, let everyone know about it.\n\nThese steps ensure that your new correction is properly documented, tested, and integrated into the processing pipeline.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q004",
+    "question": "What does to_pe mean?",
+    "category": "identifier",
+    "expect": "This is a conversion from PMT voltage change to number of photo-electrons",
+    "gold_files": [
+      "straxen/straxen/plugins/records/records.py",
+      "xedocs/xedocs/schemas/corrections/implementations/pmt_area_to_pe.py"
+    ],
+    "retrieved": [
+      "xedocs/xedocs/schemas/corrections/implementations/pmt_area_to_pe.py:15",
+      "extra_docs/corrections/README.md:163",
+      "extra_docs/corrections/README.md:135",
+      "extra_docs/corrections/README.md:169",
+      "xedocs/README.rst:35",
+      "straxen/notebooks/tutorials/pulse_analysis.ipynb:42",
+      "xedocs/xedocs/cli.py:26",
+      "xedocs/xedocs/schemas/corrections/implementations/se_gains.py:20"
+    ],
+    "answer": "`to_pe` stands for \"ADC to PE\" conversion factor. It is used to convert the area of an ADC signal (in arbitrary units) to Photoelectrons (PEs). In the context provided, `to_pe[100]` refers to the conversion factor at a specific ADC value.\n\nThe code snippet shows how to use this conversion factor:\n\n```python\n# Hack to get ADC -> PE conversion factors. We'll make this better someday...\nto_pe = st.get_single_plugin(run_id, \"peaklets\").to_pe\n\nplt.hist(areas, bins=100)\nplt.xlabel(\"Area (ADCc)\")\nplt.ylabel(\"Counts\")\nplt.axvline(1 / to_pe[100], color=\"r\", linestyle=\"--\")\nplt.axvline(np.median(areas), color=\"purple\", linestyle=\"--\")\n```\n\nHere, `to_pe` is obtained from the \"peaklets\" plugin using `st.get_single_plugin(run_id, \"peaklets\").to_pe`. The conversion factor at ADC value 100 is then used to draw a vertical line on the histogram for reference.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q005",
+    "question": "How do I load data from SR3 using global v18 corrections?",
+    "category": "refusal",
+    "expect": "The corpus has no information on this. The question is specific to a particular experiment and data release, and is a potentially common question",
+    "gold_files": [],
+    "retrieved": [
+      "strax/strax/storage/common.py:485",
+      "straxen/straxen/plugins/events/corrected_areas.py:54",
+      "straxen/straxen/plugins/events/corrected_areas.py:60",
+      "xedocs/notebooks/Reprocessing_with_xedocs_corrections.ipynb:19",
+      "xedocs/xedocs/schemas/corrections/base_references.py:38",
+      "straxen/straxen/plugins/events/corrected_areas.py:85",
+      "straxen/straxen/config/protocols.py:86",
+      "straxen/straxen/plugins/events/corrected_areas.py:69"
+    ],
+    "answer": "To load data from SR3 using global v18 corrections, you need to configure your straxen context and specify the correct URL configurations for the corrections. Here's how you can do it:\n\n1. **Set up your straxen context**:\n   ```python\n   import straxen\n\n   url = './test_data/'\n   run_id = '047493'\n   st = straxen.contexts.xenonnt_online(output_folder=url, include_rucio_remote=True, download_heavy=True)\n   ```\n\n2. **Configure the URL configurations for corrections**:\n   - `s1_xyz_map`, `s2_xy_map`, `rel_extraction_eff`, and `avg_se_gain` are all configured to use URLs that point to specific correction data in xedocs.\n\n3. **Load the data**:\n   Once your context is set up with the correct configurations, you can load the data using strax's standard methods. For example:\n   ```python\n   events = st.events(time_range=(start_time, end_time))\n   ```\n\n4. **Verify the corrections**:\n   Ensure that the corrections are applied by checking the metadata or by visualizing the data to see if it has been corrected according to the global v18 standards.\n\nThis approach leverages the URLConfigurations provided by straxen and xedocs to dynamically load correction data, making it easy to switch between different versions of corrections as needed.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q006",
+    "question": "How does the peaklet classification work?",
+    "category": "process",
+    "expect": "The SOM classification is the default and uses the output of the vanilla classification to remove some signals.",
+    "gold_files": [
+      "straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py",
+      "straxen/straxen/plugins/peaklets/peaklet_classification_som.py"
+    ],
+    "retrieved": [
+      "straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py:73",
+      "straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py:73",
+      "straxen/straxen/plugins/peaklets/peaklet_classification_som.py:24",
+      "straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py:12",
+      "straxen/straxen/plugins/peaklets/peaklets.py:216",
+      "straxen/straxen/plugins/peaklets/peaklet_classification_som.py:86",
+      "straxen/straxen/plugins/peaks/peaks_vanilla.py:45",
+      "straxen/straxen/plugins/peaklets/peaklet_positions_cnf.py:207"
+    ],
+    "answer": "Peaklet classification in XENON analysis software stack is performed by two main classes: `PeakletClassificationVanilla` and `PeakletClassificationSOM`. The default classification method used is `PeakletClassificationVanilla`.\n\n### PeakletClassificationVanilla\n\nThe `PeakletClassificationVanilla` class classifies peaklets as S1, S2, or unknown based on their properties. Here's how it works:\n\n1. **Properties Extraction**:\n   - Rise time: Calculated from the area decile from midpoint.\n   - Number of channels: Counts the number of channels with positive area per channel.\n\n2. **Classification Criteria**:\n   - **S1 Classification**: \n     - Area \u2265 100\n     - Rise time \u2264 `s1_max_rise_time_post100`\n     - Tight coincidence \u2265 `s1_min_coincidence`\n   - **Small S1 Classification**:\n     - Area < 100\n     - Rise time < boundary functions based on area and fraction top.\n     - Tight coincidence \u2265 `s1_min_coincidence`\n\n3. **S2 Classification**:\n   - Number of channels \u2265 `s2_min_pmts`\n   - If a peaklet is classified as large S1 or small S1, it cannot be classified as S2.\n\n4. **Output**:\n   - The classification result is stored in a new array with fields for type, time, dt, length, and channel.\n   - If the `merged` field exists in the dtype, it is set to False indicating peaklets are not merged yet.\n\n### PeakletClassificationSOM\n\nThe `PeakletClassificationSOM` class extends `PeakletClassificationVanilla` and adds a new classification method using Self-Organizing Maps (SOM).\n\n1. **Inheritance**:\n   - It inherits from `PeakletClassificationVanilla`.\n\n2. **New Data Types**:\n   - Adds a new data type, `som_type`, which assigns numbers based on the cluster in the SOM.\n\n3. **Classification Process**:\n   - Calls the parent class's `compute` method to get initial classifications.\n   - Applies SOM for further classification.\n   - Combines both vanilla and SOM classifications, allowing users to choose between them using a configuration option (`use_som_as_default`).\n\n4. **Output**:\n   - The final classification result includes both vanilla and SOM types.\n\n### Configuration Options\n\n- `s1_risetime_area_parameters`, `s1_risetime_aft_parameters`, `s1_flatten_threshold_aft`: Parameters for rise time boundary functions.\n- `s1_max_rise_time_post100`, `s1_min_coincidence`: Minimum coincidence threshold for S1 classification.\n- `s2_min_pmts`: Minimum number of PMTs required for S2 classification.\n- `som_files`, `use_som_as_default`: Configuration options specific to the SOM plugin.\n\n### Example Usage\n\nTo use peaklet classification, you would typically configure and run a pipeline that includes these plugins. Here is an example configuration:\n\n```python\nimport straxen as sx\n\n# Configure the pipeline\npipeline = sx.Pipeline(\n    plugins=[\n        'peaklets',\n        'peaklet_classification_vanilla',\n        'peaklet_positions_cnf'\n    ],\n    config={\n        'PeakletClassificationVanilla': {\n            's1_max_rise_time_post100': 5,\n            's1_min_coincidence': 2,\n            's2_min_pmts': 4\n        },\n        'PeakletPositionsCNF': {\n            'min_reconstruction_area': 100\n        }\n    }\n)\n\n# Run the pipeline on some data\npipeline.extract('peaklet_classification')\n```\n\nThis configuration sets up a pipeline that includes peaklet extraction, classification, and position reconstruction. The `PeakletClassificationVanilla` plugin is used for classification based on predefined criteria.\n\nFor more detailed information, refer to the source code and documentation provided in the excerpts.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 1,
+    "n_citations_grounded": 1,
+    "id": "q007",
+    "question": "How does the event building work?",
+    "category": "process",
+    "expect": "Finds peaks the clear and area and proximity requirments. Matches the largest s1 with the largest s2 together to form an event",
+    "gold_files": [
+      "straxen/straxen/plugins/events/events.py"
+    ],
+    "retrieved": [
+      "straxen/straxen/plugins/events_nv/events_nv.py:109",
+      "straxen/straxen/holoviews/holoviews_tpc_event_display.py:119",
+      "straxen/straxen/plugins/events_mv/events_mv.py:10",
+      "straxen/notebooks/tutorials/EventDisplayInteractive.ipynb:24",
+      "straxen/straxen/plugins/events/events.py:9",
+      "straxen/straxen/plugins/events/events.py:51",
+      "straxen/straxen/plugins/events_nv/events_nv.py:53",
+      "straxen/straxen/holoviews_utils.py:397"
+    ],
+    "answer": "Events are built based on peak(s) in a fixed range of time around a peak that satisfies certain conditions [straxen/straxen/plugins/events/events.py:9-174]. The triggering peak must have a certain area and less than \"trigger_max_proximity\". The time range defining an event is chopped at chunk boundaries.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q008",
+    "question": "How does admix work, what can I do with it?",
+    "category": "refusal",
+    "expect": "This corpus has no information on this and should refuse to answer.",
+    "gold_files": [],
+    "retrieved": [
+      "straxen/docs/source/scripts.rst:39",
+      "straxen/docs/source/online_monitor.rst:32",
+      "straxen/straxen/scripts/restrax.py:390",
+      "straxen/straxen/daq_core.py:46",
+      "strax/docs/source/advanced/recompression.rst:129",
+      "straxen/notebooks/tutorials/strax_demo.ipynb:8",
+      "straxen/straxen/scripts/restrax.py:1",
+      "straxen/docs/source/scripts.rst:183"
+    ],
+    "answer": "Admix is a tool that ships data from the DAQ (Data Acquisition) to distributed storage [Source: admix <https://github.com/XENONnT/admix>]. It ensures that high-level diagnostic data stored on the DAQ for longer periods can be deleted if needed. The `ajax` script in straxen is used to remove this data based on specific conditions, such as whether a run has been finished and transferred to the shared analysis cluster [Source: straxen/docs/source/scripts.rst:39-63].",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q009",
+    "question": "How do I change the default configuration for a plugin?",
+    "category": "usage",
+    "expect": "You need to change the value in the context. After establishing st = straxen.xenonnt...(), we can do st.set_config() with the config name along with the URLConfig to the desired value, or just inserting a number",
+    "gold_files": [
+      "strax/docs/source/advanced/config.rst"
+    ],
+    "retrieved": [
+      "strax/docs/source/advanced/config.rst:1",
+      "xedocs/xedocs/_settings.py:35",
+      "strax/strax/config.py:61",
+      "strax/strax/context.py:939",
+      "xedocs/xedocs/schemas/plugin_lineages.py:74",
+      "xedocs/xedocs/xenon_config.py:76",
+      "strax/strax/config.py:249",
+      "strax/strax/context.py:430"
+    ],
+    "answer": "To change the default configuration for a plugin in the XENON analysis software stack (strax, straxen, xedocs), you need to use the `strax.takes_config` decorator and define your options using `strax.Option`. Here is how you can do it:\n\n1. **Define an Option**: Use `strax.Option` to create an option with a default value.\n    ```python\n    from strax import Option\n\n    my_option = Option('my_option', type=int, default=42)\n    ```\n\n2. **Use the Option in a Plugin**: Apply the `strax.takes_config` decorator to your plugin class and include the option you defined.\n    ```python\n    from strax import takes_config, Plugin\n\n    @takes_config(my_option)\n    class MyPlugin(Plugin):\n        provides = ('my_data',)\n\n        def process(self, data):\n            # Use my_option in your processing logic\n            threshold = self.config['my_option']\n            # ...\n    ```\n\n3. **Set the Option Value**: When creating a `strax.Context`, you can set the value of the option.\n    ```python\n    import strax\n\n    context = strax.Context(config={'my_option': 10})\n    ```\n\n4. **Run the Plugin**: Use the context to run your plugin, and it will use the specified configuration.\n    ```python\n    with context:\n        my_plugin = MyPlugin()\n        data = my_plugin.get_data(run_id)\n    ```\n\nBy following these steps, you can change the default configuration for a plugin in the XENON analysis software stack.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q010",
+    "question": "How do I load data from a run?",
+    "category": "usage",
+    "expect": "You first need to establish a context. Then use a function like 'get_array' or 'get_df', spesifying the data type, run_id, ect...",
+    "gold_files": [
+      "straxen/straxen/notebooks/tutorials/Open_data.ipynb",
+      "straxen/docs/source/build_datastructure_doc.py",
+      "straxen/notebooks/tutorials/strax_demo.ipynb"
+    ],
+    "retrieved": [
+      "straxen/straxen/scripts/microstrax.py:50",
+      "straxen/notebooks/tutorials/SuperrunsExample.ipynb:21",
+      "strax/strax/run_selection.py:333",
+      "straxen/notebooks/tutorials/strax_demo.ipynb:27",
+      "straxen/notebooks/tutorials/SuperrunsExample.ipynb:7",
+      "straxen/straxen/config/protocols.py:242",
+      "straxen/straxen/storage/rundb.py:325",
+      "strax/strax/context.py:2121"
+    ],
+    "answer": "To load data from a run in XENON analysis software stack (strax, straxen, xedocs), you can use the `get_array` method provided by the `Context` class. Here is how it works:\n\n1. **Select a Run**: First, you need to select a run using the `select_runs` function. This will return a DataFrame with all available runs.\n\n    ```python\n    st.select_runs()\n    ```\n\n2. **Load Data**: Use the `get_array` method from the `Context` class to load data for a specific run and data type. For example, to load event information for run `180215_1029`, you can do:\n\n    ```python\n    run_id = \"180215_1029\"\n    df = st.get_array(run_id, \"event_info\", seconds_range=[0, 60])\n    ```\n\n3. **Handling Multiple Runs**: If you want to load data from multiple runs, you can pass a list of run IDs to `get_array`. For example:\n\n    ```python\n    run_ids = [\"180215_1029\", \"180216_1029\"]\n    df = st.get_array(run_ids, \"event_info\")\n    ```\n\n4. **Loading Multiple Data Types**: You can also specify multiple data types to load and they will be merged for you.\n\n    ```python\n    df = st.get_array(\"180215_1029\", [\"event_info\", \"peaklets\"])\n    ```\n\n### Example Usage\n\nHere is a complete example demonstrating how to load data from a single run:\n\n```python\nimport straxen as st\n\n# Select available runs\nruns_df = st.select_runs()\n\n# Load event information for a specific run\nrun_id = \"180215_1029\"\ndf = st.get_array(run_id, \"event_info\", seconds_range=[0, 60])\n\nprint(df)\n```\n\nThis will load the `event_info` data from the specified run and print it. If you need to load data from multiple runs or different data types, adjust the parameters accordingly.\n\n### Notes\n\n- The `seconds_range` parameter is optional and can be used to limit the amount of data loaded.\n- Ensure that the run ID and data type are correctly specified according to your needs.\n- The `get_array` method will process the data if it hasn't been processed before, which might take a moment on the first run.\n\nThis approach provides a straightforward way to load and work with data in the XENON analysis software stack.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q011",
+    "question": "How do I load data from a krypton calibration run?",
+    "category": "refusal",
+    "expect": "Refusal, the text does not have the information necessary to answer this.",
+    "gold_files": [],
+    "retrieved": [
+      "straxen/straxen/scripts/microstrax.py:50",
+      "straxen/straxen/scripts/microstrax.py:50",
+      "straxen/straxen/scripts/microstrax.py:50",
+      "straxen/straxen/scripts/bootstrax.py:997",
+      "xedocs/xedocs/schemas/calibrations/sources.py:19",
+      "straxen/straxen/config/protocols.py:86",
+      "straxen/notebooks/tutorials/SuperrunsExample.ipynb:7",
+      "straxen/notebooks/tutorials/SuperrunsExample.ipynb:21"
+    ],
+    "answer": "To load data from a krypton calibration run using XENON analysis software stack (strax, straxen, xedocs), follow these steps:\n\n1. **Ensure Context is Loaded**: Before loading any data, ensure that the context (`st`) is loaded. This can typically be done by calling `strax.Context()` or similar initialization code.\n\n2. **Identify Run ID and Target**: Determine the run ID of the krypton calibration run you want to load. The target should be specified as `\"calibration\"` since it's a calibration dataset.\n\n3. **Use `get_data` Function**: Call the `get_data` function with the appropriate parameters:\n   - `run_id`: The ID of the krypton calibration run.\n   - `target`: Set to `\"calibration\"`.\n   - Optionally, specify other parameters like `max_n`, `start`, `end`, and `selection` if needed.\n\nHere is an example code snippet based on the provided excerpts:\n\n```python\nimport strax\n\n# Initialize the context (assuming this has been done elsewhere in your script)\nst = strax.Context()\n\n# Specify the run ID of the krypton calibration run\nrun_id = \"000001\"  # Replace with the actual run ID\n\n# Load data from the krypton calibration run\ndata = st.get_data(run_id, target=\"calibration\", max_n=1000)\n\n# Process or analyze the data as needed\nprint(data)\n```\n\n### Explanation:\n- **Context Initialization**: The context (`st`) is initialized to provide access to the data storage and processing capabilities.\n- **Function Call**: `get_data` is called with the run ID, target set to `\"calibration\"`, and an optional maximum number of entries (`max_n`). This function handles loading the data based on the specified parameters.\n\n### Notes:\n- Ensure that the run ID provided corresponds to a valid krypton calibration run in your dataset.\n- The `target` parameter is crucial as it specifies the type of data being loaded (in this case, `\"calibration\"`).\n\nThis approach leverages the built-in functionality of the XENON analysis software stack to load and process calibration data efficiently.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q012",
+    "question": "Is midway2/3 down?",
+    "category": "refusal",
+    "expect": "Refusal, the text does not have the information necessary to answer this.",
+    "gold_files": [],
+    "retrieved": [
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:159",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:153",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:163",
+      "straxen/straxen/plugins/aqmon_hits/aqmon_hits.py:86",
+      "straxen/straxen/plugins/peaks/peak_proximity.py:60",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:149",
+      "straxen/straxen/plugins/events/corrected_areas.py:154",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:187"
+    ],
+    "answer": "The excerpts provided do not include any information about \"midway2/3\" or its status. The content focuses on configuration options and parameters within specific plugins of the XENON analysis software stack, such as `straxen.plugins.merged_s2s.MergedS2s` and others.\n\nTo determine if \"midway2/3\" is down, you would need to look for information or logs related to that specific component in your system. This might involve checking system status pages, monitoring tools, or contacting the support team responsible for managing \"midway2/3\".\n\nIf you have access to a command-line interface, you could try running commands like `systemctl status midway2` or `systemctl status midway3` (assuming these are systemd services) to check their current state. If you need more detailed information, you might want to consult the documentation for \"midway2/3\" or reach out to its administrators directly.\n\nFor further assistance, you could also look at any relevant logs in `/var/log/midway2.log` and `/var/log/midway3.log`, if they exist.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 1,
+    "n_citations_grounded": 1,
+    "id": "q013",
+    "question": "Is there a way to analyze the data interactively?",
+    "category": "usage",
+    "expect": "Answer should contain st.event_display_interactive indicating the desired configuration, importing bklt and using bklt.show",
+    "gold_files": [
+      "straxen/notebooks/tutorials/EventDisplayInteractive.ipynb"
+    ],
+    "retrieved": [
+      "straxen/notebooks/tutorials/ScadaInterfaceExample.ipynb:21",
+      "xedocs/docs/advanced_usage.rst:51",
+      "straxen/notebooks/tutorials/Open_data.ipynb:2",
+      "xedocs/xedocs/schemas/historian_reader.py:8",
+      "xedocs/notebooks/basics.ipynb:13",
+      "xedocs/notebooks/Accessing_and_inserting_data.ipynb:35",
+      "straxen/notebooks/tutorials/Open_data.ipynb:42",
+      "xedocs/docs/advanced_usage.rst:91"
+    ],
+    "answer": "To analyze data interactively using XENON analysis software stack (strax, straxen, xedocs), you can use the `TimeWidgets` class from `straxen`. This class provides a user-friendly interface to select time ranges and query data in a human-readable format.\n\nHere's how you can do it:\n\n1. Initialize the `TimeWidgets` class:\n    ```python\n    tw = straxen.TimeWidgets()\n    ```\n\n2. Create the widgets to render them in your Jupyter notebook or other interactive environment:\n    ```python\n    tw.create_widgets()\n    ```\n\n3. After selecting a time range, you can retrieve the start and end times:\n    ```python\n    start, end = tw.get_start_end()\n    print(start, end)\n    ```\n\n4. To query data using these timestamps, you need to specify the context and use the `get_scada_values` method:\n    ```python\n    st = straxen.contexts.xenonnt_online()\n    sc.context = st\n\n    df = sc.get_scada_values(parameters, run_id=\"055000\", every_nth_value=10)\n    ```\n\nThis approach allows you to interactively select time ranges and query data without having to manually input timestamps in nanoseconds. The `TimeWidgets` class simplifies the process of working with time-based queries in a user-friendly manner.\n\nSource: [straxen/notebooks/tutorials/ScadaInterfaceExample.ipynb:21-21]",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q014",
+    "question": "How do I check the detector conditions during a given time?",
+    "category": "usage",
+    "expect": "You need to establish a scada context like straxen.SCADAInterface() and use functions like get_scada_values, spesifying the parameter of interest as well as a time range.",
+    "gold_files": [
+      "straxen/notebooks/tutorials/ScadaInterfaceExample.ipynb"
+    ],
+    "retrieved": [
+      "xedocs/xedocs/schemas/detector_numbers.py:7",
+      "straxen/straxen/scada.py:198",
+      "strax/strax/processing/general.py:466",
+      "xedocs/HISTORY.rst:88",
+      "strax/strax/processing/general.py:473",
+      "strax/strax/processing/general.py:459",
+      "straxen/straxen/plugins/raw_records_coin_nv/nveto_recorder.py:458",
+      "xedocs/notebooks/basics.ipynb:5"
+    ],
+    "answer": "To check the detector conditions during a given time, you can use the `SCADAInterface` class from the `straxen.scada.py` file [Source: straxen/straxen/scada.py:198-272]. This class provides a method `_get_and_check_start_end` which helps in fetching and validating the start and end times for querying slow control data.\n\nHere is an example of how you might use this method:\n\n```python\nfrom straxen.scada import SCADAInterface\n\n# Initialize the SCADA interface with your context\nscada_interface = SCADAInterface(context=your_context)\n\n# Specify the run ID, start time, and end time\nrun_id = \"your_run_id\"\nstart_time = 1672531200000000000  # Start time in UTC unix time ns\nend_time = 1672617600000000000    # End time in UTC unix time ns\n\n# Get the start and end times for querying\nstart, end, now = scada_interface._get_and_check_start_end(run_id=run_id, start=start_time, end=end_time)\n```\n\nThis method ensures that the specified times are valid and within the allowed range before proceeding with any data queries.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q015",
+    "question": "How does the single electron gain correction affect the data analysis?",
+    "category": "process",
+    "expect": "Affects the corrected_areas calculation.",
+    "gold_files": [
+      "straxen/straxen/plugins/events/corrected_areas.py"
+    ],
+    "retrieved": [
+      "xedocs/xedocs/schemas/corrections/implementations/avg_se_gain.py:1",
+      "xedocs/xedocs/schemas/corrections/implementations/se_gains.py:1",
+      "xedocs/xedocs/schemas/corrections/implementations/se_gain_partition.py:1",
+      "straxen/straxen/plugins/events/corrected_areas.py:122",
+      "xedocs/xedocs/schemas/corrections/implementations/extraction_efficiency.py:1",
+      "straxen/straxen/plugins/events/corrected_areas.py:69",
+      "straxen/straxen/plugins/events/corrected_areas.py:13",
+      "xedocs/xedocs/schemas/corrections/implementations/lone_hits.py:1"
+    ],
+    "answer": "The single electron gain correction affects the data analysis by correcting the time-dependent changes in the extraction efficiency and gain of electrons. This correction is crucial for accurately interpreting S2 properties, as these properties can be affected by the gain variations unless corrected. The `avg_se_gain` configuration option specifies the nominal single electron gain that the data will be corrected to. The correction is applied during the event processing stage, ensuring that the analysis reflects the correct conditions under which the data was collected.\n\nThe correction involves several steps:\n1. **Interpolation**: Using Kr83m calibration data, the extraction efficiency is interpolated as a function of time delay from the nearest ramp up.\n2. **Application**: The interpolation results are applied to all runs to ensure consistency in gain and efficiency across different times.\n3. **Partitioning**: Depending on the region (AB or CD), different patterns of evolution for single electron corrections are considered, which affects both the average value and relative extraction efficiency.\n\nThis correction is part of a broader set of N-1 corrections applied during data analysis to isolate the impact of individual corrections on the overall results [Source: straxen/straxen/plugins/events/corrected_areas.py:13-473].",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q016",
+    "question": "How do URLConfigs work?",
+    "category": "process",
+    "expect": "This mainly consists of 3 main parts separated by '://' which include the protocol for processing the data, the database location, and details like the correction name, the version, ect... amongst other details needed for the individual correction.",
+    "gold_files": [
+      "straxen/straxen/config/url_config.py",
+      "straxen/docs/source/url_configs.rst"
+    ],
+    "retrieved": [
+      "straxen/docs/source/url_configs.rst:2",
+      "straxen/docs/source/url_configs.rst:2",
+      "straxen/straxen/config/url_config.py:152",
+      "straxen/straxen/config/url_config.py:169",
+      "straxen/straxen/config/url_config.py:219",
+      "straxen/straxen/config/url_config.py:228",
+      "straxen/straxen/config/url_config.py:47",
+      "straxen/straxen/config/url_config.py:174"
+    ],
+    "answer": "URLConfigs in straxen provide a flexible and maintainable way to manage configuration values for plugins. They allow complex configurations to be defined as URLs, which can include protocols for loading data, run-dependent values, and more. Here's how URLConfigs work:\n\n1. **Splitting URLs**: The `split_url_kwargs` method splits a URL into the path and keyword arguments (kwargs). It uses Python's `urlparse` and `parse_qs` to parse the query string.\n\n    ```python\n    def split_url_kwargs(cls, url):\n        \"\"\"Split a url into path and kwargs.\"\"\"\n        path, _, _ = url.partition(cls.QUERY_SEP)\n        kwargs = {}\n        for k, v in parse_qs(urlparse(url).query).items():\n            n = len(v)\n            if not n:\n                kwargs[k] = None\n            elif n == 1:\n                kwargs[k] = parse_val(v[0])\n            else:\n                kwargs[k] = list(map(parse_val, v))\n        return path, kwargs\n    ```\n\n2. **Fetching URL Arguments**: The `kwarg_from_url` method retrieves a specific keyword argument from a URL.\n\n    ```python\n    def kwarg_from_url(cls, url: str, key: str):\n        path, kwargs = cls.split_url_kwargs(url)\n        return kwargs.get(key, None)\n    ```\n\n3. **Dereferencing ASTs**: The `deref_ast` method dereferences an abstract syntax tree (AST) by looking up values in a namespace.\n\n    ```python\n    def deref_ast(cls, protocol, arg, kwargs, **namespace):\n        \"\"\"Dereference an AST by looking up values in namespace.\"\"\"\n        if isinstance(arg, tuple):\n            arg = cls.deref_ast(*arg, **namespace)\n        else:\n            arg = cls.lookup_value(arg, **namespace)\n        kwargs = {k: cls.lookup_value(v, **namespace) for k, v in kwargs.items()}\n        return protocol, arg, kwargs\n    ```\n\n4. **Validation**: The `validate` method preprocesses configuration values before they are set on the plugin. It sorts preprocessor functions and applies them to the configuration.\n\n    ```python\n    def validate(\n            self,\n            config,\n            run_id=None,  # TODO: will soon be removed\n            run_defaults=None,\n            set_defaults=True,\n        ):\n        \"\"\"This method is called by the context on plugin initialization at this stage, the run_id\n        and context config are already known but the config values are not yet set on the plugin.\n\n        Therefore its the perfect place to run any preprocessors on the config values to make any\n        needed changes before the configs are hashed.\n\n        \"\"\"\n        super().validate(config, run_id, run_defaults, set_defaults)\n\n        cfg = config[self.name]\n\n        sorted_preprocessors = reversed(sorted(self._PREPROCESSORS, key=lambda x: x[0]))\n\n        full_kwargs = dict(\n            name=self.name,\n            run_id=run_id,\n            run_defaults=run_defaults,\n            set_defaults=set_defaults,\n        )\n\n        for _, preprocessor in sorted_preprocessors:\n            kwargs = filter_kwargs(preprocessor, full_kwargs)\n            new_cfg = preprocessor(cfg, **kwargs)\n            cfg = new_cfg if new_cfg is not None else cfg\n\n        config[self.name] = cfg\n\n        if not isinstance(cfg, str) or self.SCHEME_SEP not in cfg:\n            # if the value is not a url config it is validated against\n            # its intended type (final_type)\n            self.validate_type(cfg)\n    ```\n\n5. **Dispatching Protocols**: URLConfigs dispatch on URL protocols using the `register` method, which associates a protocol with a function.\n\n    ```python\n    def register(cls, protocol, func=None):\n        \"\"\"Register a protocol.\"\"\"\n        if func is None:\n            return functools.partial(cls.register, protocol)\n        cls._LOOKUP[protocol] = func\n        return func\n    ```\n\n6. **Evaluating URLs**: The `evaluate_dry` method evaluates a URL without actually fetching the data.\n\n    ```python\n    def evaluate_dry(cls, url: str, **kwargs):\n        \"\"\"Evaluate a URL without fetching the data.\"\"\"\n        protocol, arg, kwargs = cls.split_url_kwargs(url)\n        return cls.deref_ast(protocol, arg, kwargs, **kwargs)\n    ```\n\nURLConfigs are designed to be flexible and maintainable by separating configuration logic from plugin code. They allow for complex configurations to be defined as URLs, making it easier to switch between different data sources and preprocessors.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 2,
+    "n_citations_grounded": 2,
+    "id": "q017",
+    "question": "What is the procedure for adding new functionality to strax?",
+    "category": "process",
+    "expect": "In the PR write what the code does, explain how it works, give a minimal example. If applicable, update docstrings and documentation, test the code works and say if it solves an open issue, make sure all automatic tests pass.",
+    "gold_files": [
+      "strax/docs/pull_request_template.md"
+    ],
+    "retrieved": [
+      "straxen/docs/source/extending_straxen.rst:1",
+      "straxen/straxen/scripts/bootstrax.py:510",
+      "strax/strax/context.py:249",
+      "straxen/docs/source/url_configs.rst:116",
+      "straxen/straxen/scripts/straxer.py:124",
+      "strax/docs/source/index.rst:2",
+      "strax/docs/source/developer/release.rst:1",
+      "straxen/straxen/scripts/straxer.py:14"
+    ],
+    "answer": "To add new functionality to strax, follow these steps:\n\n1. **Define an Entry Point**: Create a function that implements the desired functionality and register it as an entry point in your package's `setup.py` or `pyproject.toml` file. For example:\n    ```python\n    # setup.py\n    entry_points={\n        'straxen': [\n            '_ = my_package.my_module:register_my_plugin',\n        ],\n    }\n    ```\n    Source: [straxen/docs/source/extending_straxen.rst:1-32]\n\n2. **Implement the Functionality**: Write the function that will be called when your entry point is invoked. This function should perform the desired task and return any necessary results.\n\n3. **Register the Plugin**: If you are extending strax, ensure that your plugin is registered with the appropriate context or system. This might involve calling a specific method to register your plugin.\n\n4. **Test Your Functionality**: Write tests for your new functionality to ensure it works as expected. Use the testing infrastructure provided by strax and straxen to validate your changes.\n\n5. **Document Your Changes**: Update the documentation to reflect any new features or changes you have made. This includes updating the API reference, user guides, and developer documentation if necessary.\n\n6. **Release Your Package**: If your package is part of a larger project, follow the release procedure outlined in [strax/docs/source/developer/release.rst:1-9] to ensure that your new functionality is properly packaged and released.\n\nBy following these steps, you can successfully add new functionality to strax and contribute to its development.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q018",
+    "question": "What are the different kinds of plugins available in strax?",
+    "category": "identifier",
+    "expect": "Should mention plugin bases such as cut_plugin, loop_plugins, merge_only_plugins, overlap_window_plugin, parallel_source_plugind and the main plugin.py amost others.",
+    "gold_files": [
+      "strax/docs/source/advanced/plugin_dev.rst"
+    ],
+    "retrieved": [
+      "strax/strax/plugins/plugin.py:1",
+      "strax/docs/source/advanced/plugin_dev.rst:28",
+      "strax/docs/source/advanced/plugin_dev.rst:40",
+      "strax/docs/source/advanced/plugin_dev.rst:28",
+      "strax/strax/plugins/plugin.py:363",
+      "strax/strax/plugins/plugin.py:49",
+      "strax/strax/plugins/plugin.py:793",
+      "strax/strax/plugins/parrallel_source_plugin.py:20"
+    ],
+    "answer": "In strax, there are several types of plugins available:\n\n- **Plugin**: The general type of plugin. It should include at least `depends_on`, `provides`, and `compute` methods [Source: strax/docs/source/advanced/plugin_dev.rst:28-38].\n  \n- **OverlapWindowPlugin**: Allows a plugin to look for data in adjacent chunks, assuming all inputs are sorted by *endtime*. It requires defining `get_window_size(self)` [Source: strax/docs/source/advanced/plugin_dev.rst:28-38].\n\n- **LoopPlugin**: Allows looping over a given datakind and finding corresponding data of a lower datakind. It uses methods like `compute_loop(self, events, peaks)` where it loops over events to find corresponding peaks within the time range [Source: strax/docs/source/advanced/plugin_dev.rst:28-38].\n\n- **CutPlugin**: A plugin type that allows selecting data using a boolean array returned by `cut_by(self, <datakind>)` [Source: strax/docs/source/advanced/plugin_dev.rst:28-38].\n\n- **MergeOnlyPlugin**: For internal use only. It merges two plugins into a new one. An example is the `EventInfo` plugin which merges datatypes like `'events', 'event_basics', 'event_positions', 'corrected_areas', 'energy_estimates'` [Source: strax/docs/source/advanced/plugin_dev.rst:28-38].\n\n- **ParallelSourcePlugin**: For internal use only. It parallelizes the processing of low-level plugins by setting `parallel = 'process'` in a plugin [Source: strax/docs/source/advanced/plugin_dev.rst:28-38].",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q019",
+    "question": "How do I use the overlap_indices function?",
+    "category": "usage",
+    "expect": "Given two intervals, returns the time where they overlap.",
+    "gold_files": [
+      "strax/strax/processing/general.py"
+    ],
+    "retrieved": [
+      "strax/strax/processing/general.py:312",
+      "xedocs/docs/advanced_usage.rst:91",
+      "strax/docs/source/advanced/plugin_dev.rst:91",
+      "strax/docs/source/developer/overlaps.rst:10",
+      "strax/strax/plugins/overlap_window_plugin.py:128",
+      "rframe/rframe/interfaces/mongo.py:533",
+      "rframe/rframe/interfaces/mongo.py:669",
+      "strax/strax/plugins/overlap_window_plugin.py:62"
+    ],
+    "answer": "To use the `overlap_indices` function, follow these steps:\n\n1. Import the necessary module:\n   ```python\n   from strax.processing.general import overlap_indices\n   ```\n\n2. Define the intervals you want to compare. For example:\n   ```python\n   a1 = 0\n   n_a = 10\n   b1 = 5\n   n_b = 10\n   ```\n\n3. Call the `overlap_indices` function with these parameters:\n   ```python\n   (a_start, a_end), (b_start, b_end) = overlap_indices(a1, n_a, b1, n_b)\n   ```\n\n4. The function will return two tuples representing the overlapping regions of the intervals `[a1, a1 + n_a)` and `[b1, b1 + n_b)`.\n\nThis function is useful for determining the overlap between two integer intervals, which can be applied in various data analysis tasks within the XENON analysis software stack.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 1,
+    "n_citations_grounded": 1,
+    "id": "q020",
+    "question": "How does the peak splitting work?",
+    "category": "process",
+    "expect": "The answer should mention it uses Jenks natural breaks algorithm",
+    "gold_files": [
+      "strax/strax/processing/peak_splitting.py"
+    ],
+    "retrieved": [
+      "strax/strax/processing/peak_splitting.py:195",
+      "strax/strax/processing/peak_splitting.py:9",
+      "strax/strax/processing/peak_splitting.py:195",
+      "strax/strax/processing/peak_splitting.py:309",
+      "strax/strax/processing/peak_splitting.py:9",
+      "strax/strax/processing/peak_splitting.py:99",
+      "strax/strax/processing/peak_splitting.py:99",
+      "strax/strax/processing/peak_splitting.py:74"
+    ],
+    "answer": "Peak splitting in XENON analysis software stack (strax, straxen, xedocs) works as follows:\n\n1. **Initialization**: The `split_peaks` function initializes the peak splitter based on the specified algorithm (`local_minimum` or `natural_breaks`). It then calls the `__call__` method of the selected splitter class.\n\n2. **Finding Split Points**: Inside the `__call__` method, it constructs a tuple of arguments for the `find_split_points` method using default values from `find_split_args_defaults`. If any custom arguments are provided via `kwargs`, they override the defaults.\n\n3. **Splitting Peaks**: The `_split_peaks` method is called with the waveforms of the peaks and the constructed arguments. This method iterates over each peak, checks if it meets the minimum area threshold, and then passes the waveform to the algorithm specified by `find_split_points`.\n\n4. **Algorithm Execution**: The `NaturalBreaksSplitter` class implements the `_split_peaks` method. It uses a natural breaks algorithm to find split points in the waveforms based on the goodness of split value. The algorithm considers factors like threshold, normalization, and whether to split at low density points.\n\n5. **Constructing New Peaks**: For each split point found, new peaks are constructed with updated properties such as time, length, and channel. These new peaks are stored in a buffer.\n\n6. **Recomputing Properties**: After all peaks have been processed, the `sum_waveform` and `compute_properties` functions are called to compute additional properties for the new peaks.\n\n7. **Recursive Splitting**: If there are new peaks created, the process is repeated recursively up to the specified number of iterations (`do_iterations`).\n\n8. **Output**: The final set of peaks (original and newly split) is returned.\n\nThis mechanism allows for flexible peak splitting based on different algorithms and customizable parameters, making it adaptable to various experimental conditions and data characteristics [strax/strax/processing/peak_splitting.py:9-68].",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q021",
+    "question": "What do the straxen holoviews classes do?",
+    "category": "identifier",
+    "expect": "This requires looking at the holoviews folder and summarizing the classes and their purpose. The corpus has no explicit answer to this question, so it will require some reasoning to answer.",
+    "gold_files": [
+      "straxen/straxen/holoviews/"
+    ],
+    "retrieved": [
+      "straxen/straxen/analyses/holoviews_waveform_display.py:1",
+      "straxen/straxen/holoviews_utils.py:15",
+      "straxen/straxen/analyses/holoviews_waveform_display.py:489",
+      "straxen/straxen/holoviews_utils.py:65",
+      "straxen/straxen/holoviews_utils.py:16",
+      "straxen/straxen/holoviews/holoviews_peak_data.py:9",
+      "straxen/straxen/holoviews/holoviews_pmt_array.py:36",
+      "straxen/straxen/holoviews_utils.py:461"
+    ],
+    "answer": "The `nVETOEventDisplay` class in `straxen/holoviews_utils.py` is designed to create an interactive display of events and hitlets using Holoviews. It initializes with parameters such as events, hitlets, run ID, channel range, PMT map, and plot extension.\n\n- **Initialization (`__init__` method)**: Sets up the class by importing Holoviews, specifying the plot extension, loading PMT positions from a CSV file or array, and converting event data to a DataFrame if provided.\n  \n- **Plotting Methods**:\n  - `plot_event_display`: Creates an interactive display of events.\n  - `plot_hitlet_matrix`: Plots a matrix of hitlets.\n  - `_plot_base_matrix`: A helper method for plotting base matrices.\n  - `plot_nveto`: Plots the N-VETO detector with hitlets.\n  - `_plot_nveto`: Internal method to plot PMTs.\n  - `_create_nveto_pmts`: Creates a grid of PMT positions based on hitlets.\n  - `_convert_channel_to_xy`: Converts channel numbers to XY coordinates.\n  - `_create_pmt_pattern_hover`: Creates hover tools for PMT patterns.\n\n- **Utility Methods**:\n  - `import_holoviews`: Imports Holoviews and assigns it to the class instance.\n  - `hitlets_to_hv_points`: Converts hitlets to points suitable for plotting.\n  - `_plot_reconstructed_position`: Plots the reconstructed position of an event.\n  - `_make_sliders_and_tables`: Creates sliders and tables for interactive controls.\n  - `_make_tables`: Generates tables with relevant data.\n  - `_make_title`: Creates a title for the plot.\n\nThe `hook` function in `straxen/analyses/holoviews_waveform_display.py` is used to synchronize the x-range between different plots. It ensures that the x-ranges are consistent when rendering plots, which is crucial for interactive displays where users might navigate through data dynamically.\n\n- **Hook Function (`hook` method)**: Sets the same x-range for event display and records matrix plots by first creating Holoviews plots and then setting the Bokeh x-range based on the Holoviews plot's range. This ensures that both plots are synchronized in terms of time scales.\n\nThese classes and functions provide a comprehensive framework for visualizing N-VETO detector data interactively, making it easier to explore and analyze events and hitlets within the context of the experiment.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 1,
+    "n_citations_grounded": 1,
+    "id": "q022",
+    "question": "How does the merge_arrs function work?",
+    "category": "usage",
+    "expect": "Merges together two structured arrays of the same length.",
+    "gold_files": [
+      "strax/strax/chunk.py",
+      "strax/strax/utils.py"
+    ],
+    "retrieved": [
+      "strax/strax/utils.py:189",
+      "strax/strax/processing/peak_merging.py:188",
+      "straxen/straxen/plugins/merged_s2s_he/merged_s2s_he.py:27",
+      "rframe/rframe/interfaces/mongo.py:805",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:304",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:205",
+      "strax/strax/processing/peak_merging.py:170",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s_vanilla.py:374"
+    ],
+    "answer": "The `merge_arrs` function merges structured arrays of equal length. If there are field name collisions, data from later arrays is kept. The function can be used when you want to convert an array into a new dtype or when you pass one array, it is returned without copying unless replacing=True.\n\nHere's how the function works:\n\n1. It checks if the input list `arrs` is empty and raises a `RuntimeError` if so.\n2. If there is only one array in `arrs`, it returns that array unless `replacing=True`.\n3. It checks if all arrays in `arrs` have the same length and raises a `ValueError` if not.\n4. If no dtype is provided, it creates a new dtype by merging the dtypes of all arrays in `arrs`.\n5. It initializes an empty array `result` with the same length as the input arrays and the merged dtype.\n6. It iterates over each array in `arrs` and copies the data from each field to the corresponding field in `result`, keeping the data from later arrays if there are collisions.\n\nExample usage:\n\n```python\nimport numpy as np\nimport strax\n\n# Create two structured arrays with the same length\narr1 = np.array([(1, 2), (3, 4)], dtype=[('a', 'i4'), ('b', 'f8')])\narr2 = np.array([(5, 6), (7, 8)], dtype=[('a', 'i4'), ('c', 'f8')])\n\n# Merge the arrays\nmerged_arr = strax.merge_arrs([arr1, arr2], dtype=None, replacing=False)\nprint(merged_arr)\n```\n\nOutput:\n\n```\n[(1, 2., 5.) (3, 4., 6.)]\n```\n\nIn this example, `merge_arrs` merges two structured arrays with the same length and different field names. The resulting array contains all fields from both input arrays, keeping the data from later arrays if there are collisions.\n\nSource: [strax/strax/utils.py:189-220]",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 6,
+    "n_citations_grounded": 0,
+    "id": "q023",
+    "question": "What storage backends are available in strax and what can they store?",
+    "category": "identifier",
+    "expect": "Data is stored in local files using the StorageBackend and StorageFrontend classes. Just saying backend is a bit vague so the mongodb interface might be mentioned. Answer should reflect that the question is a bit ambiguous",
+    "gold_files": [
+      "strax/strax/storage/common.py"
+    ],
+    "retrieved": [
+      "strax/strax/storage/common.py:1",
+      "strax/strax/storage/common.py:472",
+      "strax/docs/source/developer/storage.rst:4",
+      "strax/docs/source/basics/overview.rst:66",
+      "strax/strax/storage/common.py:485",
+      "strax/strax/storage/common.py:262",
+      "strax/strax/storage/common.py:667",
+      "strax/strax/storage/common.py:150"
+    ],
+    "answer": "In strax, storage backends are responsible for storing and retrieving data. The primary interface for interacting with storage backends is through the `StorageBackend` class [strax/storage/common.py:472-707]. This abstract class defines methods that must be implemented by any subclass to provide specific storage functionality.\n\nThe `StorageFrontend` class [strax/storage/common.py:150-468] acts as a bridge between the user and the storage backends. It is responsible for finding data locations, communicating with the appropriate backend, and managing the storage process. The `StorageFrontend` can be subclassed to provide custom storage behavior.\n\nThe `saver` method in both `StorageBackend` [strax/storage/common.py:667-673] and `StorageFrontend` [strax/storage/common.py:262-265] is used to save data. The backend's `saver` method sets default metadata such as the compressor and strax version, then calls its `_saver` method to perform the actual saving.\n\nThe `loader` method in `StorageBackend` [strax/storage/common.py:485-584] is used to load data. It checks the metadata for required fields and constraints on time range and chunk number before yielding chunks of data that meet these criteria.\n\nTo add a new storage backend, you must subclass `StorageBackend` and implement its abstract methods [strax/storage/common.py:1-1]. The `StorageFrontend` will then use your custom backend to handle storage operations.\n\nIn summary, strax provides a flexible framework for defining and using custom storage backends through the `StorageBackend` class. These backends can be integrated with the `StorageFrontend` to manage data storage and retrieval in various ways.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 2,
+    "n_citations_grounded": 2,
+    "id": "q024",
+    "question": "What backends are available in xedocs?",
+    "category": "identifier",
+    "expect": "Github, mongodb and local data files should be mentioned.",
+    "gold_files": [
+      "xedocs/xedocs/data_locations/github.py",
+      "xedocs/xedocs/data_locations/mongodb.py",
+      "xedocs/xedocs/data_locations/data_folder.py"
+    ],
+    "retrieved": [
+      "xedocs/notebooks/Accessing_and_inserting_data.ipynb:6",
+      "xedocs/xedocs/xedocs.py:124",
+      "xedocs/README.rst:2",
+      "xedocs/docs/from_cmt.rst:1",
+      "xedocs/xedocs/xedocs.py:128",
+      "xedocs/docs/from_cmt.rst:1",
+      "xedocs/xedocs/xedocs.py:179",
+      "xedocs/notebooks/basics.ipynb:16"
+    ],
+    "answer": "Xedocs supports multiple backends to store and access data. The primary backend used by xedocs is MongoDB [xedocs/README.rst:2-7]. This allows for versioned storage of detector numbers and other metadata necessary for the XENONnT experiment.\n\nAdditionally, xedocs can use schemas to fetch corrections from multiple sources, including Bodega (referred to as 'detector numbers'), the xedocs database, or even custom sources. These schemas are Python classes with specific properties and functions designed to handle data storage and rules such as preventing deletion and overwriting of existing data [xedocs/notebooks/Accessing_and_inserting_data.ipynb:6-6].\n\nIn summary, xedocs primarily uses MongoDB for its backend but supports custom schemas for flexible data retrieval from various sources.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q025",
+    "question": "What is the difference between data kinds and data type in strax?",
+    "category": "identifier",
+    "expect": "All data lives in data types, such as raw_records or peak_basics. Each of these has a fixed numpy datatype.\nIf a single row of two data types refers to the same physical / logical thing, such as an event or a peak, we say those data types have the same data_kind.",
+    "gold_files": [
+      "strax/docs/source/advanced/chunking.rst"
+    ],
+    "retrieved": [
+      "strax/docs/source/advanced/chunking.rst:4",
+      "strax/strax/context.py:453",
+      "strax/docs/source/developer/storage.rst:20",
+      "strax/strax/plugins/plugin.py:363",
+      "straxen/notebooks/tutorials/strax_demo.ipynb:14",
+      "strax/strax/context.py:2823",
+      "strax/docs/source/advanced/plugin_dev.rst:28",
+      "strax/strax/context.py:649"
+    ],
+    "answer": "In strax, **data kinds** and **data types** are two distinct concepts:\n\n- **Data type**: A specific type of data, such as `raw_records` or `peak_basics`. Each data type has a fixed numpy datatype.\n  \n- **Data kind**: A logical grouping of related data types. If multiple rows of different data types refer to the same physical/logical thing (like an event or a peak), they are considered to have the same `data_kind`.\n\nFor example, if you have both `raw_records` and `peak_basics` that describe the same events, they would share the same `data_kind`. This allows for easier querying and manipulation of related data within strax.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 3,
+    "n_citations_grounded": 3,
+    "id": "q026",
+    "question": "What does 'Cannot write to zipfiles' mean?",
+    "category": "error",
+    "expect": "A few thigs can trigger this error message, answer should be a summary of these possible errors.",
+    "gold_files": [
+      "strax/strax/storage/zipfiles.py"
+    ],
+    "retrieved": [
+      "strax/strax/storage/zipfiles.py:69",
+      "strax/strax/storage/zipfiles.py:117",
+      "strax/strax/storage/zipfiles.py:63",
+      "strax/strax/storage/zipfiles.py:66",
+      "strax/strax/storage/zipfiles.py:36",
+      "strax/strax/storage/zipfiles.py:14",
+      "strax/strax/storage/zipfiles.py:27",
+      "strax/strax/storage/zipfiles.py:84"
+    ],
+    "answer": "Cannot write to zipfiles means that the functionality for writing data into zip files is not supported in the current implementation of the ZipDirectory class [strax/strax/storage/zipfiles.py:69-70]. The methods `_set_write_complete`, `saver`, and `write_run_metadata` raise a `NotImplementedError` indicating that these operations are not available for zip file storage. This is because writing directly to zip files would lead to concurrency issues, as multiple processes might try to write at the same time [strax/strax/storage/zipfiles.py:63-64]. Instead, zip files are created by zipping data from a `FileStore` backend [strax/strax/storage/zipfiles.py:14-99].",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 1,
+    "n_citations_grounded": 1,
+    "id": "q027",
+    "question": "I get a DataNotAvailable error when loading peaks, why am I getting this error?",
+    "category": "error",
+    "expect": "This is the most likely cause of this error, but there are other possible causes. There is a high chance this is not caught as there is no data to reflect the likelyhood of this error. A refusal without further info is also acceptable.",
+    "gold_files": [
+      "straxen/straxen/plugins/peaks/peaks_vanilla.py",
+      "strax/strax/storage/common.py"
+    ],
+    "retrieved": [
+      "strax/strax/storage/common.py:101",
+      "xedocs/xedocs/schemas/corrections/implementations/peak_reconstruction_bias.py:15",
+      "straxen/straxen/plugins/peaks/peak_positions_cnf_peakonly.py:62",
+      "strax/strax/dtypes.py:166",
+      "straxen/straxen/common.py:349",
+      "straxen/straxen/plugins/peaklets/peaklets.py:51",
+      "strax/strax/testutils.py:188",
+      "straxen/straxen/plugins/peaks/peak_proximity.py:32"
+    ],
+    "answer": "You are getting a `DataNotAvailable` error when loading peaks because the requested data is not available. This could be due to various reasons such as missing data files, incorrect run IDs, or issues with the data storage system [strax/strax/storage/common.py:101-104].",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q028",
+    "question": "What causes 'Cannot patch {k}: not in registry'? error?",
+    "category": "error",
+    "expect": "The function run_strax triggers it if a given class was called that was not registered.",
+    "gold_files": [
+      "straxen/straxen/scripts/bootstrax.py"
+    ],
+    "retrieved": [
+      "xedocs/xedocs/schemas/plugin_lineages.py:41",
+      "straxen/straxen/misc.py:129",
+      "strax/strax/storage/common.py:41",
+      "xedocs/xedocs/schemas/plugin_lineages.py:8",
+      "straxen/straxen/scripts/ajax.py:450",
+      "xedocs/xedocs/schemas/plugin_lineages.py:22",
+      "strax/strax/context.py:430",
+      "straxen/straxen/scripts/bootstrax.py:2105"
+    ],
+    "answer": "The error 'Cannot patch {k}: not in registry' occurs when an attempt is made to update or modify a configuration key (`{k}`) that is not recognized by the system's plugin registry. This typically happens during the process of loading and configuring plugins, where the system expects certain keys to be present but finds them missing.\n\nThis error can be caused by several factors:\n1. **Incorrect Configuration**: The configuration file or dictionary being used does not contain all the expected keys.\n2. **Plugin Mismatch**: There might be a mismatch between the plugins that are registered and the keys they expect.\n3. **Version Incompatibility**: The version of the plugin registry might not be compatible with the current set of plugins.\n\nTo resolve this issue, you should:\n- Verify that all required configuration keys are present in your configuration file or dictionary.\n- Ensure that all plugins are correctly registered and that their dependencies are met.\n- Check for any updates or patches to the plugin registry that might address compatibility issues.\n\nIf the problem persists, you may need to consult the documentation for the specific version of the XENON analysis software stack you are using or seek assistance from the community or support channels.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q029",
+    "question": "How do I write my own plugin that depends on events?",
+    "category": "abstract",
+    "expect": "",
+    "gold_files": [
+      "strax/docs/source/advanced/plugin_dev.rst"
+    ],
+    "retrieved": [
+      "straxen/straxen/plugins/events/event_area_per_channel.py:9",
+      "straxen/straxen/plugins/events/event_info.py:22",
+      "straxen/straxen/plugins/events/event_info.py:9",
+      "straxen/straxen/plugins/events/event_positions.py:55",
+      "straxen/straxen/plugins/events/event_basics_vanilla.py:65",
+      "straxen/straxen/plugins/events/event_ambience.py:19",
+      "straxen/straxen/plugins/events/event_position_uncertainty.py:137",
+      "straxen/straxen/plugins/events_mv/events_mv.py:10"
+    ],
+    "answer": "To write your own plugin that depends on events, you need to create a subclass of `strax.Plugin` and define how it computes its output based on event data. Here\u2019s a step-by-step guide:\n\n1. **Define the Plugin Class**: Create a new class that inherits from `strax.Plugin`.\n\n2. **Specify Dependencies**: Set the `depends_on` attribute to include `\"events\"` or any other relevant plugins that provide the input data your plugin needs.\n\n3. **Implement `infer_dtype` Method**: This method should define the output data type of your plugin using NumPy's structured array format.\n\n4. **Implement `compute` Method**: This is where you write the logic to process the input events and compute the desired output.\n\nHere\u2019s an example based on the provided excerpts:\n\n```python\nimport strax\n\nclass MyEventPlugin(strax.Plugin):\n    depends_on = (\"events\",)  # Specify that this plugin depends on event data\n    provides = \"my_event_output\"  # Define what your plugin will provide\n    __version__ = \"0.1.0\"\n    compressor = \"zstd\"\n\n    def infer_dtype(self):\n        \"\"\"Define the output data type.\"\"\"\n        return [\n            (\"my_value\", np.float32, \"A value computed from events\"),\n        ]\n\n    def compute(self, events):\n        \"\"\"Compute the output based on event data.\"\"\"\n        # Example computation: average some property of events\n        my_values = [event['some_property'] for event in events]\n        return {\"my_value\": np.mean(my_values)}\n```\n\n### Explanation:\n\n1. **Class Definition**:\n   - `MyEventPlugin` inherits from `strax.Plugin`.\n\n2. **Dependencies**:\n   - `depends_on` is set to `(\"events\",)`, indicating that this plugin depends on event data.\n\n3. **Output Definition**:\n   - `provides` is set to `\"my_event_output\"`, defining what the plugin will output.\n   - `infer_dtype` method defines the structure of the output data using NumPy's structured array format.\n\n4. **Computation Logic**:\n   - The `compute` method processes the input events and computes the desired output. In this example, it averages a property of the events.\n\n### Usage:\n\nTo use your plugin in an analysis, you would add it to the `plugins` list when creating a `strax.Context`.\n\n```python\nimport strax\n\ncontext = strax.Context(plugins=[MyEventPlugin()])\nevents = context.events()\nmy_output = context.my_event_output()\n```\n\nThis setup ensures that your plugin is correctly integrated into the analysis workflow, leveraging the event data provided by other plugins.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q030",
+    "question": "What methods do I have to implement when subclassing strax.Plugin?",
+    "category": "abstract",
+    "expect": "compute is the only function that needs to be implemented. It is the only method in an 'abstract' from as it just raises a not implemented error.",
+    "gold_files": [
+      "strax/strax/plugins/plugin.py"
+    ],
+    "retrieved": [
+      "strax/strax/context.py:330",
+      "strax/strax/plugins/plugin.py:284",
+      "strax/docs/source/advanced/plugin_dev.rst:181",
+      "strax/strax/plugins/plugin.py:49",
+      "straxen/straxen/plugins/events/event_basics_vanilla.py:443",
+      "strax/strax/plugins/plugin.py:723",
+      "strax/strax/plugins/plugin.py:363",
+      "strax/strax/plugins/parrallel_source_plugin.py:20"
+    ],
+    "answer": "When subclassing `strax.Plugin`, you need to implement the following methods:\n\n- **`compute()`**: This method should contain the core computation logic of your plugin. It is where the actual data processing happens [Source: strax/plugins/plugin.py:723-728].\n\n- **`setup()`**: This method can be used for any initialization tasks that need to occur when the plugin is created. If you don't need to perform any setup, you can leave this method empty [Source: strax/plugins/plugin.py:284-286].",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 2,
+    "n_citations_grounded": 2,
+    "id": "q031",
+    "question": "What is the difference between straxen and strax?",
+    "category": "identifier",
+    "expect": "Strax is a general framework for pulse singal processing, while straxen is the XENONnT spesific implementation of this processing.",
+    "gold_files": [
+      "strax/README.md",
+      "straxen/README.md"
+    ],
+    "retrieved": [
+      "strax/docs/source/index.rst:2",
+      "straxen/docs/source/index.rst:2",
+      "straxen/docs/source/scripts.rst:9",
+      "straxen/docs/source/scripts.rst:29",
+      "strax/strax/plugins/plugin.py:1",
+      "straxen/notebooks/tutorials/strax_demo.ipynb:8",
+      "strax/docs/source/developer/storage.rst:20",
+      "straxen/docs/source/scripts.rst:183"
+    ],
+    "answer": "Straxen is built on top of the generic strax framework and is specifically configured for analyzing XENON1T/XENONnT data [straxen/docs/source/index.rst:2-78]. It provides standardized contexts and tutorials for setting up and using the framework, as well as technical features like online monitoring and context configurations [straxen/docs/source/index.rst:2-78].",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q032",
+    "question": "How do I use DataSelectionHist?",
+    "category": "deprecation",
+    "expect": "This class is depreciated and no longer available.",
+    "gold_files": [
+      "straxen/straxen/analyses/bokeh_waveform_plot.py"
+    ],
+    "retrieved": [
+      "straxen/straxen/analyses/bokeh_waveform_plot.py:1126",
+      "straxen/straxen/analyses/bokeh_waveform_plot.py:986",
+      "straxen/straxen/analyses/bokeh_waveform_plot.py:989",
+      "straxen/straxen/analyses/bokeh_waveform_plot.py:1138",
+      "rframe/rframe/interfaces/tinydb.py:47",
+      "rframe/rframe/interfaces/tinydb.py:46",
+      "rframe/rframe/interfaces/tinydb.py:59",
+      "straxen/notebooks/tutorials/EventDisplayInteractive.ipynb:59"
+    ],
+    "answer": "To use `DataSelectionHist`, follow these steps:\n\n1. **Import the necessary module**:\n   ```python\n   from straxen.analyses.bokeh_waveform_plot import DataSelectionHist\n   ```\n\n2. **Initialize the `DataSelectionHist` object**:\n   - You must provide a name for the instance as a string. This is crucial for the JavaScript callback to work correctly.\n   ```python\n   ds = DataSelectionHist(\"ds\")\n   ```\n\n3. **Prepare your data**:\n   - Retrieve the data you want to plot. For example, using `strax`:\n   ```python\n   peaks = st.get_array(run_id, \"peak_basics\", _chunk_number=0)\n   ```\n\n4. **Plot the data**:\n   - Use the `histogram2d` method to create a 2D histogram of your data. You need to specify the items (data), x and y data fields, bins, and other parameters.\n   ```python\n   f = ds.histogram2d(\n       peaks,\n       peaks[\"area\"],\n       peaks[\"range_50p_area\"],\n       bins=50,\n       hist_range=((0, 200), (0, 2000)),\n       log_color_scale=True,\n       clim=(10, None),\n       undeflow_color=\"white\",\n   )\n   ```\n\n5. **Render the plot**:\n   - The `histogram2d` method returns a Bokeh figure object (`f`). You can render this figure in your Jupyter notebook using:\n   ```python\n   f.show()\n   ```\n\nThis sequence of steps initializes the data selection tool, plots the specified data interactively, and renders the plot. Make sure to follow these exact steps as described in the provided code example and documentation.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 2,
+    "n_citations_grounded": 0,
+    "id": "q033",
+    "question": "What is the difference between peaks and peaklets?",
+    "category": "identifier",
+    "expect": "Peaklets are the result of using the peak splitting algorithm in the time integrated wavefrom signals. We generate peaks by taking the peaklets classified as S2s and merging them when appropriate. S1s do not change.",
+    "gold_files": [
+      "straxen/straxen/plugins/peaks/peaks_vanilla.py",
+      "straxen/straxen/plugins/peaklets/peaklets.py"
+    ],
+    "retrieved": [
+      "straxen/straxen/plugins/peaklets/peaklets.py:15",
+      "straxen/straxen/plugins/peaklets/peaklets.py:216",
+      "straxen/straxen/plugins/peaklets/peaklets.py:479",
+      "straxen/straxen/plugins/peaklets/peaklets.py:424",
+      "straxen/straxen/plugins/peaklets/peaklets.py:94",
+      "straxen/straxen/plugins/peaklets/peaklets.py:125",
+      "straxen/straxen/plugins/peaklets/peaklets.py:400",
+      "straxen/straxen/plugins/peaklets/peaklets.py:51"
+    ],
+    "answer": "Peaks are classified as S2 when the rise time falls below the area boundary [straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py:73]. The minimum coincidence defaults to 2 [straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py:31].",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q034",
+    "question": "When should I use a LoopPlugin instead of a regular Plugin?",
+    "category": "identifier",
+    "expect": "Need a loop plugin when you need to find where data kind x for example appears in data kind y as it needs to loop over data kind x to find the desired results.",
+    "gold_files": [
+      "strax/strax/plugins/loop_plugin.py"
+    ],
+    "retrieved": [
+      "strax/strax/plugins/loop_plugin.py:11",
+      "strax/strax/plugins/loop_plugin.py:121",
+      "strax/strax/plugins/loop_plugin.py:24",
+      "strax/docs/source/advanced/plugin_dev.rst:28",
+      "strax/docs/source/advanced/plugin_dev.rst:120",
+      "strax/strax/plugins/down_chunking_plugin.py:34",
+      "strax/strax/plugins/exhaust_plugin.py:7",
+      "strax/docs/source/advanced/plugin_dev.rst:28"
+    ],
+    "answer": "A `LoopPlugin` should be used when you need to loop over a given data kind and find the corresponding data of a lower data kind within that time range. This is useful for operations like finding records within each peak or events within each time window. The key difference from a regular `Plugin` is that a `LoopPlugin` allows you to specify which data kind to loop over using the `loop_over` attribute and how to handle time selection with the `time_selection` attribute.\n\nFor example, if you want to find records within each peak, you can define a `LoopData` plugin as follows:\n\n```python\nclass LoopData(strax.LoopPlugin):\n    \"\"\"Loop over peaks and find the records within each of those peaks.\"\"\"\n    depends_on = 'peaks', 'records'\n    provides = 'looped_data'\n\n    dtype = strax.time_fields + [((\"total records\", 'n_records'), np.int16)]\n\n    # The LoopPlugin specific requirements\n    time_selection = 'fully_contained'  # other option is 'touching'\n    loop_over = 'peaks'\n\n    # Use the compute_loop() instead of compute()\n    def compute_loop(self, peaks, records):\n        result = np.zeros(len(peaks), dtype=self.dtype)\n        result['time'] = np.min(peaks['time'])\n        result['endtime'] = np.max(strax.endtime(peaks))\n        result['n_records'] = len(records)\n        return result\nst.register(LoopData)\nst.get_df(run_id, 'looped_data')\n```\n\nThis plugin will loop over each peak and compute the number of records within that peak.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 1,
+    "n_citations_grounded": 1,
+    "id": "q035",
+    "question": "What does s2_min_pmts control?",
+    "category": "configuration",
+    "expect": "Establishes the minimum number of PMTs that need to contribute to a signal for it to be considered an S2.",
+    "gold_files": [
+      "straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py"
+    ],
+    "retrieved": [
+      "straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py:56",
+      "straxen/notebooks/tutorials/strax_demo.ipynb:45",
+      "straxen/straxen/plugins/peaklets/peaklets.py:63",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s_vanilla.py:77",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s_vanilla.py:75",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:55",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:53",
+      "straxen/straxen/plugins/merged_s2s/merged_s2s.py:159"
+    ],
+    "answer": "`s2_min_pmts` controls the minimum number of PMTs (Photo Multiplier Tubes) that must contribute to an S2 event [straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py:56]. This parameter is used in the classification of peaklets as S1 or S2 events.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 1,
+    "n_citations_grounded": 1,
+    "id": "q036",
+    "question": "What's the default value of s1_min_coincidence?",
+    "category": "configuration",
+    "expect": "This is just a number retrival, answer should be 2.",
+    "gold_files": [
+      "straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py"
+    ],
+    "retrieved": [
+      "straxen/straxen/plugins/events/events.py:95",
+      "straxen/straxen/plugins/events/events.py:86",
+      "straxen/straxen/plugins/peaklets/peaklet_classification_vanilla.py:52",
+      "straxen/straxen/plugins/events/event_basics_vanilla.py:50",
+      "straxen/straxen/plugins/raw_records_coin_nv/nveto_recorder.py:458",
+      "straxen/notebooks/tutorials/strax_demo.ipynb:45",
+      "straxen/straxen/plugins/raw_records_coin_nv/nveto_recorder.py:458",
+      "straxen/straxen/plugins/raw_records_coin_nv/nveto_recorder.py:424"
+    ],
+    "answer": "The default value of `s1_min_coincidence` is 2 [straxen/straxen/plugins/events/events.py:95]. This configuration option is used in multiple classes and plugins within the XENON analysis software stack to determine the minimum number of PMTs that must see something before a peak is labeled as S1.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q037",
+    "question": "How do I cut a new strax release?",
+    "category": "process",
+    "expect": "Update personal fork & local master to Axfoundation fork Edit and commit HISTORY.md bumpversion patch (or minor/major, as appropriate) Push to personal and AxFoundation fork, with --tags fast-foward and push AxFoundation/stable Add release info on release page of github website",
+    "gold_files": [
+      "strax/docs/source/developer/release.rst"
+    ],
+    "retrieved": [
+      "strax/docs/source/developer/release.rst:1",
+      "strax/strax/plugins/cut_plugin.py:16",
+      "strax/strax/processing/data_reduction.py:83",
+      "strax/strax/plugins/cut_plugin.py:98",
+      "strax/strax/processing/data_reduction.py:51",
+      "strax/strax/plugins/cut_plugin.py:66",
+      "straxen/straxen/scripts/straxer.py:124",
+      "straxen/straxen/plugins/online_peak_monitor/online_peak_monitor.py:42"
+    ],
+    "answer": "To cut a new strax release, follow these steps:\n\n1. Update your personal fork and local master branch to match the Axfoundation fork.\n2. Edit and commit the `HISTORY.md` file to reflect the changes in this release.\n3. Bump the version number using `bumpversion patch` (or `minor/major` if appropriate).\n4. Push your changes to both your personal fork and the Axfoundation fork, including tags with `--tags`.\n5. Fast-forward merge the changes into the `AxFoundation/stable` branch.\n6. Add release information on the GitHub release page.\n\nThis process ensures that your release is properly documented and available for others to use [Source: strax/docs/source/developer/release.rst:1-9].",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 1,
+    "n_citations_grounded": 1,
+    "id": "q038",
+    "question": "How do I cut a new release of straxen?",
+    "category": "refusal",
+    "expect": "Model should refuse to answer as the data for this is not available.",
+    "gold_files": [],
+    "retrieved": [
+      "strax/docs/source/developer/release.rst:1",
+      "strax/strax/plugins/cut_plugin.py:98",
+      "straxen/straxen/plugins/online_peak_monitor/online_peak_monitor.py:69",
+      "strax/strax/processing/data_reduction.py:83",
+      "strax/strax/plugins/cut_plugin.py:16",
+      "straxen/straxen/plugins/online_peak_monitor/online_peak_monitor.py:42",
+      "strax/strax/plugins/cut_plugin.py:66",
+      "straxen/straxen/scripts/straxer.py:124"
+    ],
+    "answer": "To cut a new release of straxen, follow these steps:\n\n1. Update your personal fork and local master branch to match the Axfoundation fork.\n2. Edit and commit the `HISTORY.md` file with the details of the release.\n3. Bump the version using `bumpversion patch`, or `minor/major` as appropriate.\n4. Push your changes to both your personal fork and the Axfoundation fork, including tags.\n5. Fast-forward and push the `AxFoundation/stable` branch.\n6. Add release information on the GitHub release page.\n\nThese steps are outlined in detail in the \"Release procedure\" section of the strax documentation [strax/docs/source/developer/release.rst:1-9].",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 5,
+    "n_citations_grounded": 5,
+    "id": "q039",
+    "question": "How do I cut a new release?",
+    "category": "process",
+    "expect": "",
+    "gold_files": [
+      "strax/docs/source/developer/release.rst",
+      "xedocs/tasks.py",
+      "rframe/tasks.py"
+    ],
+    "retrieved": [
+      "rframe/tasks.py:172",
+      "xedocs/tasks.py:172",
+      "strax/strax/processing/data_reduction.py:51",
+      "strax/strax/processing/data_reduction.py:31",
+      "strax/docs/source/developer/release.rst:1",
+      "strax/strax/processing/data_reduction.py:83",
+      "strax/strax/plugins/cut_plugin.py:98",
+      "extra_docs/corrections/README.md:86"
+    ],
+    "answer": "To cut a new release of the XENON analysis software stack, follow these steps:\n\n1. **Update personal fork and local master**: Ensure your personal fork and local master branch are up-to-date with the Axfoundation fork.\n   - Source: [strax/docs/source/developer/release.rst:1-9]\n\n2. **Edit and commit HISTORY.md**: Update the `HISTORY.md` file to include details about the new release.\n\n3. **Bump version**: Use `bumpversion patch` (or `minor/major` as appropriate) to update the version number.\n   - Source: [strax/docs/source/developer/release.rst:1-9]\n\n4. **Push to personal and Axfoundation fork**: Push your changes to both your personal fork and the Axfoundation fork, including tags.\n   - Source: [strax/docs/source/developer/release.rst:1-9]\n\n5. **Fast-forward and push Axfoundation/stable**: Fast-forward merge your changes into the `stable` branch of the Axfoundation repository and push it.\n   - Source: [strax/docs/source/developer/release.rst:1-9]\n\n6. **Add release info on GitHub website**: Update the release page on the GitHub website with details about the new release.\n\nThese steps are outlined in the \"Release procedure\" section of the `release.rst` file, which provides a clear and concise guide for cutting a new release [strax/docs/source/developer/release.rst:1-9].",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q040",
+    "question": "What is an rframe schema?",
+    "category": "identifier",
+    "expect": "A schema is a python class that inherits from rframe.BaseSchema and its used to define and query structured data.",
+    "gold_files": [
+      "rframe/rframe/schema.py",
+      "xedocs/docs/advanced_usage.rst"
+    ],
+    "retrieved": [
+      "rframe/rframe/schema.py:182",
+      "xedocs/docs/advanced_usage.rst:5",
+      "rframe/rframe/rframe.py:31",
+      "rframe/rframe/data_accessor.py:28",
+      "rframe/rframe/rframe.py:68",
+      "rframe/rframe/rest_server.py:35",
+      "rframe/rframe/utils.py:82",
+      "rframe/rframe/rest_server.py:453"
+    ],
+    "answer": "An rframe schema is a Python class that inherits from `rframe.BaseSchema`. It defines the structure and properties of the data documents that will be stored and queried. The schema specifies fields with their types and any additional metadata like indices. This allows for structured storage and retrieval of data in a consistent manner.\n\nExample:\n```python\nimport rframe\nfrom typing import Literal\n\nclass ExampleSchema(rframe.BaseSchema):\n    _ALIAS = 'simple_dataframe'\n\n    experiment: Literal['1t', 'nt'] = rframe.Index()\n    detector: Literal['tpc', 'nveto','muveto'] = rframe.Index()\n    version: str = rframe.Index()\n\n    value: float\n    error: float\n    unit: str\n    creator: str\n```\nThis example defines a schema for storing documents with fields like `experiment`, `detector`, and `value`. The `Index` decorator marks these fields as part of the document's index, which is used for querying.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 1,
+    "n_citations_grounded": 1,
+    "id": "q041",
+    "question": "How does xedocs use rframe's indexing?",
+    "category": "identifier",
+    "expect": "rframe indecies are extensively used though most classes in xedocs requiring at least a time index. Other indecies can be added to fetch data as necessary. A few examples of how they are used is expected",
+    "gold_files": [
+      "rframe/rframe/indexes/",
+      "xedocs/xedocs/schemas/base_schemas.py",
+      "xedocs/xedocs/schemas/pmt_data/pmts.py",
+      "xedocs/xedocs/schemas/context_config.py",
+      "xedocs/notebooks/Defining_Schemas.ipynb",
+      "xedocs/xedocs/schemas/corrections/implementations/"
+    ],
+    "retrieved": [
+      "xedocs/docs/from_cmt.rst:1",
+      "xedocs/docs/from_cmt.rst:1",
+      "xedocs/notebooks/Accessing_and_inserting_data.ipynb:6",
+      "xedocs/docs/index.rst:1",
+      "xedocs/notebooks/Defining_Schemas.ipynb:10",
+      "xedocs/README.rst:2",
+      "xedocs/docs/web-playground.ipynb:9",
+      "xedocs/xedocs/schemas/base_schemas.py:73"
+    ],
+    "answer": "Xedocs uses rframe's indexing through the `rframe.Index` decorator to define which variables should be treated as indices and are required when new values of corrections are made [xedocs/notebooks/Defining_Schemas.ipynb:10-10]. This allows xedocs to enforce rules such as preventing deletion and overwriting of existing data.",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  },
+  {
+    "n_citations": 0,
+    "n_citations_grounded": 0,
+    "id": "q042",
+    "question": "How do I load a tensorflow model in straxen?",
+    "category": "process",
+    "expect": "When writing the URLConfig include the tf name in the first section of the url.",
+    "gold_files": [
+      "straxen/straxen/config/protocols.py",
+      "straxen/straxen/config/url_config.py"
+    ],
+    "retrieved": [
+      "straxen/docs/source/url_configs.rst:25",
+      "straxen/straxen/config/protocols.py:95",
+      "straxen/straxen/config/protocols.py:95",
+      "straxen/docs/source/url_configs.rst:116",
+      "straxen/straxen/config/protocols.py:95",
+      "straxen/straxen/plugins/events/event_pattern_fit.py:208",
+      "straxen/straxen/plugins/peaks/peak_s1_positions_cnn.py:17",
+      "straxen/docs/source/url_configs.rst:25"
+    ],
+    "answer": "To load a TensorFlow model in straxen, you can use the `open_neural_net` function from the `straxen.config.protocols` module. This function allows you to specify the path to the model file and optionally register custom objects.\n\nHere is an example of how to use it:\n\n```python\nfrom straxen.config.protocols import open_neural_net\n\nmodel_path = \"path/to/your/model.tar.gz\"\nmodel = open_neural_net(model_path)\n```\n\nThis function handles both local and remote (e.g., via URL) model files. If the model is a tar.gz file, it will be extracted, and any registration script within the archive will be executed.\n\nFor more details on how to define new protocols or use different descriptors, you can refer to the [straxen docs > url configs](straxen/docs/source/url_configs.rst).",
+    "retriever": "dense",
+    "backend": "qwen2.5-coder:7b"
+  }
+]

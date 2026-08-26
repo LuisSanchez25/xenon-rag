@@ -219,6 +219,10 @@ def test_retry_gives_up_eventually():
 def test_assistant_passes_retrieved_chunks_to_the_model():
     from xenonrag.answer import Assistant
 
+    def __init__(self, reply: str = "stub answer"):
+        self.name = "stub"
+        self.model = "stub"
+
     class FakeIndex:
         def search(self, v, k=8):
             return [chunk(name="found_this")]
