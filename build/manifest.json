@@ -1,0 +1,23 @@
+{
+  "embedding_model": "BAAI/bge-small-en-v1.5",
+  "dim": 384,
+  "n_chunks": 3384,
+  "repo_commits": {
+    "strax": "3237670317f35fc7989fec3d84f7ec7437aaf5b0",
+    "straxen": "9506b1fc164afd20a49f1f61aba7f48f64272a48",
+    "xedocs": "837c4561ed511c11a4defb453c6dd6323f4a330b",
+    "rframe": "07ea721580717270d4a680c15d16d7a38dbc8025"
+  },
+  "kinds": {
+    "method": 1434,
+    "function": 821,
+    "class_card": 341,
+    "class_config": 321,
+    "prose": 257,
+    "notebook": 108,
+    "module_docstring": 51,
+    "method_summary": 27,
+    "function_summary": 24
+  },
+  "built_at": "2026-08-26T13:24:59+00:00"
+}

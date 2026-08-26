@@ -8,9 +8,9 @@ secrets.toml
 repos/
 
 # build artifacts -- see note below
-build/
-*.faiss
-*.jsonl
+!build/
+!*.faiss
+!*.jsonl
 
 # python
 .venv*/

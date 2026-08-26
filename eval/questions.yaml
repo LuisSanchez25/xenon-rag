@@ -118,7 +118,7 @@
            this."
 
 - id: q013
-  question: "Is there a way to analyze the data interactively?"
+  question: "Is there a way to analyze event data interactively?"
   gold_files: ["straxen/notebooks/tutorials/EventDisplayInteractive.ipynb"]
   category: usage
   expect: "Answer should contain st.event_display_interactive indicating
