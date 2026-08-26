@@ -1,0 +1,15 @@
+[project]
+name = "xenonrag"
+requires-python = ">=3.10"
+dependencies = [
+    "sentence-transformers>=3.0",
+    "faiss-cpu>=1.8",
+    "rank_bm25>=0.2.2",
+    "numpy>=1.26",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+llm = ["google-genai>=1.0", "requests>=2.31"]
+app = ["streamlit>=1.40"]
+dev = ["pytest>=8.0"]
