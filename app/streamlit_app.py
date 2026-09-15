@@ -39,6 +39,8 @@ from xenonrag.index import VectorIndex             # noqa: E402
 from xenonrag.llm import LLMError, get_backend     # noqa: E402
 from xenonrag.prompt import build_prompt, estimate_tokens, permalink  # noqa: E402
 from xenonrag.retrieve import build_retriever      # noqa: E402
+from xenonrag.serving import (QueueTimeout, RequestQueue,   # noqa: E402
+                              local_backend_ready, ollama_loaded)
  
  
 # The public deployment uses the committed index in build/, which covers only
@@ -67,6 +69,18 @@ CITATION = re.compile(r"\[([\w./-]+\.\w+:\d+(?:-\d+)?)\]")
 # --------------------------------------------------------------------------
 # loading (cached so the model and index load once per session, not per query)
 # --------------------------------------------------------------------------
+
+@st.cache_resource
+def request_queue() -> RequestQueue:
+    """One queue for the whole app.
+ 
+    Streamlit runs each session in its own thread inside a single process, so
+    a process-wide queue serialises every user. Ollama generates one response
+    at a time regardless; the queue's job is to make the wait visible instead
+    of leaving people staring at a spinner.
+    """
+    return RequestQueue()
+
  
 @st.cache_resource(show_spinner="Loading index and embedding model...")
 def load_index(index_dir: str, embed_model: str):
@@ -159,6 +173,18 @@ with st.sidebar:
     except Exception as exc:                                # noqa: BLE001
         st.error(f"Could not load the index: {exc}")
         st.stop()
+ 
+    st.divider()
+    if backend == "ollama":
+        ready, why = local_backend_ready()
+        (st.success if ready else st.warning)(why)
+        loaded = ollama_loaded()
+        st.caption(f"In memory: {', '.join(loaded)}" if loaded
+                   else "No model resident; the first question will load it "
+                        "(a few seconds).")
+    depth = request_queue().depth()
+    if depth:
+        st.caption(f"{depth} request{'s' if depth > 1 else ''} in progress")
  
     st.divider()
     st.caption("Answers are correct or partly correct about 86% of the time on "

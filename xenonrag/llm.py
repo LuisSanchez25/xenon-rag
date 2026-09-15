@@ -235,6 +235,7 @@ class OllamaBackend(LLMBackend):
                     "prompt": prompt,
                     "stream": False,
                     "think": self.think,
+                    "keep_alive": self.keep_alive,
                     "options": {"num_ctx": self.num_ctx,
                                 "temperature": self.temperature},
                 },
