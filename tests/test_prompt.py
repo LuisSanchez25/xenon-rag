@@ -11,8 +11,8 @@ import pytest
 
 from xenonrag.llm import LLMBackend, LLMError, _retry, get_backend
 from xenonrag.prompt import (CONTEXT_BUDGET_CHARS, build_prompt,
-                             estimate_tokens, format_excerpt, permalink,
-                             select_context)
+                             estimate_tokens, format_excerpt, looks_weak,
+                             permalink, select_context)
 
 
 class StubBackend(LLMBackend):
@@ -36,6 +36,7 @@ def chunk(**kw):
         "commit": "9506b1fc16", "start_line": 15, "end_line": 40,
         "kind": "method", "name": "PeakBasics.compute",
         "public_api": False, "status": None, "score": 0.8,
+        "visibility": "public",
     }
     return {**base, **kw}
 
@@ -49,6 +50,20 @@ def test_permalink_points_at_the_indexed_commit():
     assert "XENONnT/straxen" in url
     assert "9506b1fc16" in url
     assert url.endswith("#L15-L40")
+
+
+def test_no_permalink_for_an_unknown_repo():
+    """A private repo has no public URL; guessing one produces a 404."""
+    assert permalink(chunk(repo="corrections")) is None
+
+
+def test_no_permalink_for_internal_chunks():
+    assert permalink(chunk(visibility="internal")) is None
+
+
+def test_internal_chunks_are_flagged_to_the_model():
+    out = format_excerpt({**chunk(visibility="internal"), "_body": "b"}, 1)
+    assert "internal doc" in out
 
 
 def test_permalink_uses_the_right_org_per_repo():
@@ -103,9 +118,23 @@ def test_chunk_without_context_text_falls_back_to_text():
 # excerpt formatting
 # --------------------------------------------------------------------------
 
-def test_excerpt_header_carries_what_the_model_must_cite():
+def test_excerpt_header_is_literally_the_citation():
+    """Regression: heading excerpts "[1] path:15-40" while asking for
+    "[path:LINE]" made models emit "[1/path:15-40]". The header is now the
+    citation, so copying it verbatim is correct."""
     out = format_excerpt({**chunk(), "_body": "body"}, 3)
-    assert out.startswith("[3] straxen/straxen/plugins/peaks.py:15-40")
+    first = out.split("\n")[0]
+    assert "[straxen/straxen/plugins/peaks.py:15-40]" in first
+    assert "[3]" not in first
+
+
+def test_excerpt_flags_do_not_use_square_brackets():
+    """Square brackets are reserved for citations; anything else in them
+    invites the model to cite the flag."""
+    out = format_excerpt({**chunk(status="deprecated"), "_body": "b"}, 1)
+    first = out.split("\n")[0]
+    assert "(deprecated)" in first
+    assert first.count("[") == 1
 
 
 def test_status_is_surfaced_to_the_model():
@@ -120,7 +149,8 @@ def test_public_api_is_surfaced():
 
 
 def test_ordinary_chunk_has_no_flag_clutter():
-    assert "[" not in format_excerpt({**chunk(), "_body": "b"}, 1).split("\n")[0][3:]
+    first = format_excerpt({**chunk(), "_body": "b"}, 1).split("\n")[0]
+    assert "(" not in first
 
 
 # --------------------------------------------------------------------------
@@ -140,7 +170,24 @@ def test_prompt_instructs_the_model_not_to_guess():
 
 
 def test_prompt_asks_for_citations():
-    assert "[repo/path.py:LINE]" in build_prompt("q", [chunk()])
+    p = build_prompt("q", [chunk()])
+    assert "copying the bracketed string" in p
+    assert "Source:" in p
+
+
+def test_format_reminder_comes_after_the_question():
+    """Small models follow a rule stated once near the top unevenly. A worked
+    example placed last is followed far more reliably -- qwen2.5-coder:7b cited
+    nothing with the rule alone."""
+    p = build_prompt("how do peaklets work?", [chunk()])
+    assert p.index("Required format") > p.index("how do peaklets work?")
+    assert p.rstrip().endswith("# Answer")
+
+
+def test_format_reminder_shows_a_worked_example():
+    p = build_prompt("q", [chunk()])
+    assert "peaklet_classification_vanilla.py:73]" in p
+    assert "not acceptable" in p
 
 
 def test_prompt_explains_the_status_flags():
@@ -149,9 +196,82 @@ def test_prompt_explains_the_status_flags():
         assert word in p
 
 
-def test_excerpts_are_numbered_in_rank_order():
-    p = build_prompt("q", [chunk(name=f"c{i}") for i in range(3)])
-    assert p.index("[1]") < p.index("[2]") < p.index("[3]")
+def test_prompt_asks_for_synthesis_across_variants():
+    """Retrieval returned both PeakletClassificationVanilla and its SOM
+    subclass, including the super() call, and the model still answered from
+    the top-ranked chunk alone. The instruction is what was missing."""
+    p = build_prompt("q", [chunk()])
+    assert "super()" in p
+    assert "Inherits from" in p
+    assert "subclasses" in p
+
+
+def test_prompt_forbids_inventing_code_examples():
+    """Ollama produced `PeakletClassificationVanilla().compute(peaklets)`,
+    which is not how strax plugins are used and appeared in no excerpt."""
+    p = build_prompt("q", [chunk()])
+    assert "construct your own usage example" in p
+    assert "ONLY by quoting one that appears in the excerpts" in p
+
+
+def test_prompt_forbids_unsupported_default_claims():
+    """Both models asserted vanilla was the default. Which plugin a context
+    registers lives in contexts.py, which this query never retrieves."""
+    p = build_prompt("q", [chunk()])
+    assert "default" in p and "unless an excerpt says so" in p
+
+
+def test_prompt_discourages_long_code_quotes():
+    assert "Do not reproduce long stretches of code" in build_prompt("q", [chunk()])
+
+
+def test_prompt_asks_for_mechanism_not_just_outputs():
+    """Regression: combining "be concise" with "don't quote code" produced a
+    199-character answer that listed the output categories and never described
+    how classification actually happens."""
+    p = build_prompt("q", [chunk()])
+    assert "the actual" in p and "mechanism" in p
+    assert "Cut padding, not substance" in p
+
+
+def test_excerpts_appear_in_rank_order():
+    p = build_prompt("q", [chunk(start_line=i * 10 + 1) for i in range(3)])
+    assert p.index(":1-40]") < p.index(":11-40]") < p.index(":21-40]")
+
+
+def test_refusal_template_is_shown_not_just_described():
+    """Gemini refused reliably, the 7B did not. A worked example in the last
+    position is followed far more often than a rule stated once near the top."""
+    p = build_prompt("q", [chunk()])
+    assert "the whole reply is a refusal" in p
+    assert "Do not pad a refusal" in p
+
+
+def test_weak_retrieval_is_flagged_to_the_model():
+    p = build_prompt("q", [chunk(score=0.42)])
+    assert "nearest available" in p
+
+
+def test_strong_retrieval_adds_no_note():
+    assert "nearest available" not in build_prompt("q", [chunk(score=0.83)])
+
+
+def test_low_confidence_can_be_forced():
+    """Fused rankings score on a different scale, so the caller decides."""
+    p = build_prompt("q", [chunk(score=0.031)], low_confidence=False)
+    assert "nearest available" not in p
+
+
+def test_fused_scores_do_not_trigger_the_note_by_accident():
+    """RRF scores land around 0.03; without a floor every hybrid query would
+    be flagged as weak retrieval."""
+    assert not looks_weak([chunk(score=0.031)])
+    assert looks_weak([chunk(score=0.42)])
+    assert not looks_weak([chunk(score=0.83)])
+
+
+def test_empty_retrieval_is_weak():
+    assert looks_weak([])
 
 
 def test_prompt_with_no_chunks_still_builds():
@@ -171,6 +291,24 @@ def test_estimate_tokens_is_in_the_right_ballpark():
 def test_backend_cannot_be_instantiated_directly():
     with pytest.raises(TypeError):
         LLMBackend()
+
+
+def test_gemini_accepts_a_key_as_an_argument():
+    """os.environ is process-wide. In a multi-user app every session shares one
+    process, so a key written there would be used by everyone's requests."""
+    import inspect
+    from xenonrag.llm import GeminiBackend
+    assert "api_key" in inspect.signature(GeminiBackend.__init__).parameters
+    src = inspect.getsource(GeminiBackend.__init__)
+    assert "api_key or os.environ" in src, "argument must take precedence"
+
+
+def test_app_never_writes_the_key_to_the_environment():
+    """Regression guard for the leak above."""
+    from pathlib import Path
+    app = Path(__file__).resolve().parent.parent / "app" / "streamlit_app.py"
+    if app.exists():
+        assert 'os.environ["GEMINI_API_KEY"] =' not in app.read_text()
 
 
 def test_unknown_backend_name_is_rejected():
@@ -218,10 +356,6 @@ def test_retry_gives_up_eventually():
 
 def test_assistant_passes_retrieved_chunks_to_the_model():
     from xenonrag.answer import Assistant
-
-    def __init__(self, reply: str = "stub answer"):
-        self.name = "stub"
-        self.model = "stub"
 
     class FakeIndex:
         def search(self, v, k=8):

@@ -66,7 +66,7 @@ class GeminiBackend(LLMBackend):
  
     def __init__(self, model: str = "gemini-3.6-flash",
                  temperature: float = 0.2, max_output_tokens: int = 8000,
-                 thinking_budget: int = 0):
+                 thinking_budget: int = 0, api_key: str | None = None):
         try:
             from google import genai
             from google.genai import types
@@ -75,7 +75,11 @@ class GeminiBackend(LLMBackend):
                 "google-genai is not installed. pip install google-genai"
             ) from exc
  
-        key = os.environ.get("GEMINI_API_KEY")
+        # Taken as an argument rather than read from the environment, because
+        # os.environ is process-wide. In a multi-user app every session shares
+        # one process, so writing a user's key there would hand it to everyone
+        # else's requests.
+        key = api_key or os.environ.get("GEMINI_API_KEY")
         if not key:
             raise LLMError(
                 "GEMINI_API_KEY is not set. Get a key from Google AI Studio and "
@@ -211,7 +215,8 @@ class OllamaBackend(LLMBackend):
     def __init__(self, model: str = "qwen3:8b",
                  host: str = "http://localhost:11434",
                  num_ctx: int = 8192, temperature: float = 0.2,
-                 timeout: int = 300, think: bool = False):
+                 timeout: int = 300, think: bool = False,
+                 keep_alive: str = "30s"):
         self.name = f"ollama/{model}"
         self.model = model
         # Qwen3 and other recent models reason before answering. That costs
@@ -219,6 +224,12 @@ class OllamaBackend(LLMBackend):
         # same failure that produced fragmentary answers from Gemini until
         # its thinking budget was set to zero.
         self.think = think
+        # How long Ollama keeps the model in VRAM after the last request. The
+        # default is five minutes, which on a shared card means holding several
+        # gigabytes long after anyone is using it. A short value releases the
+        # card promptly; the cost is a few seconds to reload on the next
+        # question, acceptable for an occasional-use tool.
+        self.keep_alive = keep_alive
         self.host = host.rstrip("/")
         self.num_ctx = num_ctx
         self.temperature = temperature
