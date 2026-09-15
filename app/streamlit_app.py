@@ -157,6 +157,31 @@ with st.sidebar:
     llm_model = st.text_input(
         "Model name",
         value="qwen3:8b" if backend == "ollama" else "gemini-3.6-flash")
+
+    user_key = None
+    if backend == "gemini":
+        shared_key = (os.environ.get("GEMINI_API_KEY") # This is not set to work by default
+                      or (st.secrets.get("GEMINI_API_KEY")
+                          if hasattr(st, "secrets") else None))
+        with st.expander("Use your own API key", expanded=not shared_key):
+            st.caption(
+                "The shared key has a daily limit across everyone using this "
+                "demo. Your own key gets its own quota and is not affected by "
+                "other people's use. Get one free at "
+                "[Google AI Studio](https://aistudio.google.com/apikey) — no "
+                "card required."
+            )
+            user_key = st.text_input(
+                "Gemini API key", type="password", value="",
+                help="Held only for this browser session, never written to "
+                     "disk or logged. It is gone when you close the tab.")
+            st.caption(
+                ":material/lock: Sent only to Google's API. If you would rather "
+                "not paste a key into a web app — a sensible default — run "
+                "this locally instead; the repository is linked below.")
+        if not shared_key and not user_key:
+            st.warning("No shared key is configured. Enter your own above to "
+                       "ask questions.")
     retriever_name = st.selectbox(
         "Retrieval", ["dense", "hybrid", "bm25"],
         help="dense: meaning. bm25: exact words. hybrid: both, fused by rank. "
@@ -215,13 +240,21 @@ if ask and question.strip():
  
     prompt = build_prompt(question, chunks)
  
-    if backend == "gemini" and not os.environ.get("GEMINI_API_KEY"):
-        key = st.secrets.get("GEMINI_API_KEY") if hasattr(st, "secrets") else None
-        if key:
-            os.environ["GEMINI_API_KEY"] = key
+    # Resolve the key per request rather than writing it to the environment,
+    # which every session in this process would share.
+    llm_kwargs = {"model": llm_model}
+    if backend == "gemini":
+        key = user_key or os.environ.get("GEMINI_API_KEY")
+        if not key and hasattr(st, "secrets"):
+            key = st.secrets.get("GEMINI_API_KEY")
+        if not key:
+            st.error("No API key available. Enter one in the sidebar under "
+                     "\"Use your own API key\".")
+            st.stop()
+        llm_kwargs["api_key"] = key
  
     try:
-        llm = get_backend(backend, model=llm_model)
+        llm = get_backend(backend, **llm_kwargs)
         with st.spinner(f"Asking {llm_model}..."):
             answer = llm.generate(prompt)
     except LLMError as exc:
@@ -264,3 +297,4 @@ if ask and question.strip():
  
     with st.expander("Prompt sent to the model"):
         st.text(prompt)
+        
